@@ -1,0 +1,83 @@
+{% extends 'courses/base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-center py-5 bg-light">
+    <div class="container">
+        <h1 class="display-4 fw-bold text-dark mb-4">Master New Skills with BlueLearn</h1>
+        <p class="lead text-muted mb-5">Access high-quality courses from expert instructors. Learn at your own pace,
+            anytime, anywhere.</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'course_list' %}" class="btn btn-primary btn-lg">Browse Courses</a>
+            {% if not request.user.is_authenticated %}
+            <a href="{% url 'accounts:learner_register' %}" class="btn btn-outline-primary btn-lg">Join for Free</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4 text-center">
+                <div class="p-4 dashboard-card h-100">
+                    <i class="fas fa-laptop-code fa-3x text-primary mb-3"></i>
+                    <h4>Expert Instructors</h4>
+                    <p>Learn from industry professionals with real-world experience.</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="p-4 dashboard-card h-100">
+                    <i class="fas fa-certificate fa-3x text-success mb-3"></i>
+                    <h4>Certificates</h4>
+                    <p>Earn recognized certificates upon completion of your courses.</p>
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="p-4 dashboard-card h-100">
+                    <i class="fas fa-infinity fa-3x text-warning mb-3"></i>
+                    <h4>Lifetime Access</h4>
+                    <p>Pay once and get lifetime access to course materials.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Partners Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">Our Trusted Partners</h2>
+        <div class="row g-4 justify-content-center">
+            {% for partner in partners %}
+            <div class="col-md-3 col-sm-6">
+                <!-- Using a card to display the partner logo and name -->
+                <div
+                    class="card h-100 shadow-sm border-0 align-items-center justify-content-center p-3 text-center hover-up">
+                    {% if partner.logo %}
+                    <img src="{{ partner.logo.url }}" alt="{{ partner.name }}" class="img-fluid mb-3"
+                        style="max-height: 100px; object-fit: contain;">
+                    {% else %}
+                    <!-- Placeholder if no logo -->
+                    <div class="placeholder-logo bg-secondary text-white d-flex align-items-center justify-content-center rounded-circle mb-3"
+                        style="width: 80px; height: 80px; font-size: 24px;">
+                        {{ partner.name|slice:":1" }}
+                    </div>
+                    {% endif %}
+                    <h5 class="card-title text-dark">{{ partner.name }}</h5>
+                    <span class="badge bg-info text-dark">{{ partner.get_pattern_type_display }}</span>
+                    <!-- Optional: Add a link if we have a public partner page -->
+                    <!-- <a href="{% url 'partern:public-partner-detail' partner.id %}" class="stretched-link"></a> -->
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center">
+                <p class="text-muted">No active partners at the moment.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

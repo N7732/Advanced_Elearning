@@ -1,0 +1,755 @@
+{% extends 'courses/base.html' %}
+
+{% block title %}Become an Instructor - BlueLearn{% endblock %}
+
+{% block extra_css %}
+<style>
+.registration-wrapper {
+    min-height: calc(100vh - 80px);
+    background: linear-gradient(135deg, #fefaf0 0%, #fff8e1 100%);
+    padding: 3rem 0;
+}
+
+.registration-card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(255, 152, 0, 0.1);
+    overflow: hidden;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.card-header-gradient {
+    background: linear-gradient(135deg, #FF9800 0%, #FFB74D 100%);
+    padding: 2.5rem 2rem;
+}
+
+.form-section {
+    padding: 2.5rem;
+}
+
+.form-group-custom {
+    margin-bottom: 1.5rem;
+}
+
+.form-label-custom {
+    font-weight: 600;
+    color: #5D4037;
+    margin-bottom: 0.5rem;
+    display: block;
+    font-size: 0.95rem;
+}
+
+.input-group-custom {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #FF9800;
+    z-index: 4;
+}
+
+.form-control-custom {
+    width: 100%;
+    padding: 0.875rem 1rem 0.875rem 3rem;
+    border: 2px solid #FFE082;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.form-control-custom:focus {
+    border-color: #FF9800;
+    box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.15);
+    outline: none;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #9E9E9E;
+    cursor: pointer;
+    z-index: 4;
+}
+
+.password-toggle:hover {
+    color: #FF9800;
+}
+
+.experience-level {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 0.5rem;
+}
+
+.experience-option {
+    border: 2px solid #FFE082;
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.experience-option:hover {
+    border-color: #FFB74D;
+    background: #FFF3E0;
+}
+
+.experience-option.selected {
+    border-color: #FF9800;
+    background: #FFECB3;
+    color: #5D4037;
+}
+
+.experience-option input[type="radio"] {
+    display: none;
+}
+
+.experience-option label {
+    cursor: pointer;
+    display: block;
+    font-weight: 500;
+}
+
+.experience-option .level-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #FF9800;
+}
+
+.textarea-custom {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #FFE082;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    min-height: 120px;
+    resize: vertical;
+}
+
+.textarea-custom:focus {
+    border-color: #FF9800;
+    box-shadow: 0 0 0 3px rgba(255, 152, 0, 0.15);
+    outline: none;
+}
+
+.terms-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin: 2rem 0;
+}
+
+.terms-checkbox input[type="checkbox"] {
+    margin-top: 0.25rem;
+    accent-color: #FF9800;
+}
+
+.terms-checkbox label {
+    font-size: 0.9rem;
+    color: #5D4037;
+    line-height: 1.5;
+}
+
+.terms-checkbox a {
+    color: #FF9800;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.terms-checkbox a:hover {
+    text-decoration: underline;
+}
+
+.btn-instructor {
+    width: 100%;
+    padding: 1rem;
+    background: linear-gradient(135deg, #FF9800 0%, #FFB74D 100%);
+    color: #5D4037;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.btn-instructor:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(255, 152, 0, 0.3);
+    color: #3E2723;
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #FFE082;
+    color: #8D6E63;
+}
+
+.login-link a {
+    color: #FF9800;
+    font-weight: 600;
+    text-decoration: none;
+    margin-left: 0.5rem;
+}
+
+.login-link a:hover {
+    text-decoration: underline;
+}
+
+.error-message {
+    color: #D32F2F;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.success-message {
+    background: #E8F5E9;
+    border: 1px solid #4CAF50;
+    color: #1B5E20;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.row-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.skills-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.skill-tag {
+    background: #FFF3E0;
+    color: #5D4037;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid #FFE082;
+}
+
+.skill-tag button {
+    background: none;
+    border: none;
+    color: #FF9800;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.8rem;
+}
+
+.skill-input-group {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.skill-input {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    border: 2px solid #FFE082;
+    border-radius: 10px;
+    font-size: 0.9rem;
+}
+
+.add-skill-btn {
+    background: #FF9800;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.add-skill-btn:hover {
+    background: #F57C00;
+}
+
+@media (max-width: 768px) {
+    .registration-wrapper {
+        padding: 1.5rem;
+    }
+    
+    .form-section {
+        padding: 1.5rem;
+    }
+    
+    .row-2col {
+        grid-template-columns: 1fr;
+    }
+    
+    .card-header-gradient {
+        padding: 1.5rem;
+    }
+    
+    .experience-level {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="registration-wrapper">
+    <div class="registration-card">
+        <!-- Header -->
+        <div class="card-header-gradient text-center text-white">
+            <div class="mb-3">
+                <i class="fas fa-chalkboard-teacher fa-3x"></i>
+            </div>
+            <h1 class="fw-bold mb-2">Become an Instructor</h1>
+            <p class="opacity-90 mb-0">Share your knowledge and inspire learners worldwide</p>
+        </div>
+
+        <!-- Messages -->
+        <div class="form-section">
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    <div class="d-flex align-items-center">
+                        <i class="fas 
+                            {% if message.tags == 'success' %}fa-check-circle
+                            {% elif message.tags == 'error' %}fa-exclamation-circle
+                            {% elif message.tags == 'warning' %}fa-exclamation-triangle
+                            {% else %}fa-info-circle{% endif %}
+                            me-2"></i>
+                        {{ message }}
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Registration Form -->
+            <form method="post" id="instructorRegistrationForm">
+                {% csrf_token %}
+                
+                <!-- Personal Information -->
+                <div class="row-2col">
+                    <!-- First Name -->
+                    <div class="form-group-custom">
+                        <label class="form-label-custom">{{ form.first_name.label }}</label>
+                        <div class="input-group-custom">
+                            <i class="fas fa-user input-icon"></i>
+                            {{ form.first_name }}
+                        </div>
+                        {% if form.first_name.errors %}
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.first_name.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Last Name -->
+                    <div class="form-group-custom">
+                        <label class="form-label-custom">{{ form.last_name.label }}</label>
+                        <div class="input-group-custom">
+                            <i class="fas fa-user input-icon"></i>
+                            {{ form.last_name }}
+                        </div>
+                        {% if form.last_name.errors %}
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.last_name.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="form-group-custom">
+                    <label class="form-label-custom">{{ form.email.label }}</label>
+                    <div class="input-group-custom">
+                        <i class="fas fa-envelope input-icon"></i>
+                        {{ form.email }}
+                    </div>
+                    {% if form.email.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.email.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Professional Title -->
+                <div class="form-group-custom">
+                    <label class="form-label-custom">{{ form.professional_title.label }}</label>
+                    <div class="input-group-custom">
+                        <i class="fas fa-briefcase input-icon"></i>
+                        {{ form.professional_title }}
+                    </div>
+                    {% if form.professional_title.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                            {{ form.professional_title.errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Experience Level -->
+                <div class="form-group-custom">
+                    <label class="form-label-custom">Teaching Experience Level</label>
+                    <div class="experience-level" id="experienceLevel">
+                        <div class="experience-option" data-value="beginner">
+                            <div class="level-icon">
+                                <i class="fas fa-seedling"></i>
+                            </div>
+                            <label>
+                                <input type="radio" name="experience_level" value="beginner">
+                                Beginner
+                            </label>
+                            <small>0-2 years</small>
+                        </div>
+                        <div class="experience-option" data-value="intermediate">
+                            <div class="level-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <label>
+                                <input type="radio" name="experience_level" value="intermediate">
+                                Intermediate
+                            </label>
+                            <small>3-5 years</small>
+                        </div>
+                        <div class="experience-option" data-value="expert">
+                            <div class="level-icon">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <label>
+                                <input type="radio" name="experience_level" value="expert">
+                                Expert
+                            </label>
+                            <small>5+ years</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bio -->
+                <div class="form-group-custom">
+                    <label class="form-label-custom">{{ form.bio.label }}</label>
+                    {{ form.bio }}
+                    {% if form.bio.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.bio.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Expertise Areas -->
+                <div class="form-group-custom">
+                    <label class="form-label-custom">Areas of Expertise</label>
+                    <div id="skillsContainer" class="skills-tags"></div>
+                    <div class="skill-input-group">
+                        <input type="text" id="skillInput" class="skill-input" placeholder="Add your skills (e.g., Python, Marketing)">
+                        <button type="button" id="addSkillBtn" class="add-skill-btn">Add</button>
+                    </div>
+                    <input type="hidden" name="expertise_areas" id="expertiseAreas">
+                    <small class="text-muted">Add up to 10 relevant skills or topics</small>
+                </div>
+
+                <!-- LinkedIn Profile -->
+                <div class="form-group-custom">
+                    <label class="form-label-custom">{{ form.linkedin_profile.label }}</label>
+                    <div class="input-group-custom">
+                        <i class="fab fa-linkedin input-icon"></i>
+                        {{ form.linkedin_profile }}
+                    </div>
+                    {% if form.linkedin_profile.errors %}
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {{ form.linkedin_profile.errors.0 }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Password -->
+                <div class="row-2col">
+                    <div class="form-group-custom">
+                        <label class="form-label-custom">{{ form.password1.label }}</label>
+                        <div class="input-group-custom">
+                            <i class="fas fa-lock input-icon"></i>
+                            {{ form.password1 }}
+                            <button type="button" class="password-toggle" id="togglePassword1">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        {% if form.password1.errors %}
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.password1.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group-custom">
+                        <label class="form-label-custom">{{ form.password2.label }}</label>
+                        <div class="input-group-custom">
+                            <i class="fas fa-lock input-icon"></i>
+                            {{ form.password2 }}
+                            <button type="button" class="password-toggle" id="togglePassword2">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                        {% if form.password2.errors %}
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ form.password2.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Terms & Conditions -->
+                <div class="terms-checkbox">
+                    {{ form.terms_agreed }}
+                    <label for="{{ form.terms_agreed.id_for_label }}">
+                        I agree to the <a href="#" target="_blank">Instructor Terms</a> and 
+                        <a href="#" target="_blank">Privacy Policy</a>
+                    </label>
+                </div>
+                {% if form.terms_agreed.errors %}
+                <div class="error-message">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{ form.terms_agreed.errors.0 }}
+                </div>
+                {% endif %}
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn-instructor">
+                    <i class="fas fa-chalkboard-teacher"></i>
+                    Become an Instructor
+                </button>
+            </form>
+
+            <!-- Login Link -->
+            <div class="login-link">
+                Already have an account?
+                <a href="{% url 'accounts:login' %}">Sign In</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Password visibility toggle
+const togglePassword1 = document.getElementById('togglePassword1');
+const togglePassword2 = document.getElementById('togglePassword2');
+const password1 = document.querySelector('input[name="password1"]');
+const password2 = document.querySelector('input[name="password2"]');
+
+function togglePasswordVisibility(input, toggleBtn) {
+    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+    input.setAttribute('type', type);
+    const icon = toggleBtn.querySelector('i');
+    icon.classList.toggle('fa-eye');
+    icon.classList.toggle('fa-eye-slash');
+}
+
+togglePassword1.addEventListener('click', () => togglePasswordVisibility(password1, togglePassword1));
+togglePassword2.addEventListener('click', () => togglePasswordVisibility(password2, togglePassword2));
+
+// Experience level selection
+const experienceOptions = document.querySelectorAll('.experience-option');
+experienceOptions.forEach(option => {
+    option.addEventListener('click', function() {
+        // Remove selected class from all options
+        experienceOptions.forEach(opt => opt.classList.remove('selected'));
+        
+        // Add selected class to clicked option
+        this.classList.add('selected');
+        
+        // Check the radio input
+        const radioInput = this.querySelector('input[type="radio"]');
+        if (radioInput) {
+            radioInput.checked = true;
+        }
+    });
+});
+
+// Skills management
+const skillsContainer = document.getElementById('skillsContainer');
+const skillInput = document.getElementById('skillInput');
+const addSkillBtn = document.getElementById('addSkillBtn');
+const expertiseAreasInput = document.getElementById('expertiseAreas');
+let skills = [];
+
+function addSkill(skill) {
+    if (!skill.trim()) return;
+    
+    const skillLower = skill.toLowerCase().trim();
+    
+    // Check if skill already exists
+    if (skills.some(s => s.toLowerCase() === skillLower)) {
+        alert('This skill is already added.');
+        return;
+    }
+    
+    // Check maximum skills
+    if (skills.length >= 10) {
+        alert('Maximum 10 skills allowed.');
+        return;
+    }
+    
+    skills.push(skill.trim());
+    updateSkillsDisplay();
+    skillInput.value = '';
+    updateExpertiseAreasInput();
+}
+
+function removeSkill(index) {
+    skills.splice(index, 1);
+    updateSkillsDisplay();
+    updateExpertiseAreasInput();
+}
+
+function updateSkillsDisplay() {
+    skillsContainer.innerHTML = '';
+    skills.forEach((skill, index) => {
+        const skillTag = document.createElement('div');
+        skillTag.className = 'skill-tag';
+        skillTag.innerHTML = `
+            ${skill}
+            <button type="button" onclick="removeSkill(${index})">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        skillsContainer.appendChild(skillTag);
+    });
+}
+
+function updateExpertiseAreasInput() {
+    expertiseAreasInput.value = skills.join(',');
+}
+
+// Add skill on button click
+addSkillBtn.addEventListener('click', () => {
+    addSkill(skillInput.value);
+});
+
+// Add skill on Enter key
+skillInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        addSkill(skillInput.value);
+    }
+});
+
+// Form validation
+document.getElementById('instructorRegistrationForm').addEventListener('submit', function(e) {
+    // Check if passwords match
+    if (password1.value !== password2.value) {
+        e.preventDefault();
+        alert('Passwords do not match. Please check and try again.');
+        password2.focus();
+        return;
+    }
+    
+    // Check if experience level is selected
+    const experienceSelected = document.querySelector('input[name="experience_level"]:checked');
+    if (!experienceSelected) {
+        e.preventDefault();
+        alert('Please select your teaching experience level.');
+        return;
+    }
+    
+    // Check if at least one skill is added
+    if (skills.length === 0) {
+        e.preventDefault();
+        alert('Please add at least one area of expertise.');
+        skillInput.focus();
+        return;
+    }
+    
+    // Check if terms are agreed
+    const termsAgreed = document.querySelector('input[name="terms_agreed"]').checked;
+    if (!termsAgreed) {
+        e.preventDefault();
+        alert('You must agree to the Instructor Terms and Privacy Policy to continue.');
+        return;
+    }
+    
+    // Validate LinkedIn URL format
+    const linkedinInput = document.querySelector('input[name="linkedin_profile"]');
+    if (linkedinInput && linkedinInput.value.trim()) {
+        const linkedinUrl = linkedinInput.value.trim();
+        const linkedinPattern = /^(https?:\/\/)?(www\.)?linkedin\.com\/.+/i;
+        if (!linkedinPattern.test(linkedinUrl)) {
+            const proceed = confirm('The LinkedIn URL format may be incorrect. Do you want to continue anyway?');
+            if (!proceed) {
+                e.preventDefault();
+                linkedinInput.focus();
+                return;
+            }
+        }
+    }
+});
+
+// Initialize form controls
+document.querySelectorAll('input, select, textarea').forEach(input => {
+    if (input.type !== 'radio' && input.type !== 'checkbox') {
+        if (input.tagName === 'TEXTAREA') {
+            input.classList.add('textarea-custom');
+        } else {
+            input.classList.add('form-control-custom');
+        }
+    }
+});
+
+// Set placeholder for professional title if empty
+const titleField = document.querySelector('input[name="professional_title"]');
+if (titleField && !titleField.getAttribute('placeholder')) {
+    titleField.setAttribute('placeholder', 'e.g., Senior Developer, Marketing Director');
+}
+
+// Set placeholder for LinkedIn if empty
+const linkedinField = document.querySelector('input[name="linkedin_profile"]');
+if (linkedinField && !linkedinField.getAttribute('placeholder')) {
+    linkedinField.setAttribute('placeholder', 'https://linkedin.com/in/yourprofile');
+}
+
+// Set placeholder for bio if empty
+const bioField = document.querySelector('textarea[name="bio"]');
+if (bioField && !bioField.getAttribute('placeholder')) {
+    bioField.setAttribute('placeholder', 'Tell us about your professional background, teaching experience, and what you\'re passionate about teaching...');
+}
+</script>
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends 'courses/base.html' %}
+
+{% block title %}Partner Dashboard - Overview{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Dashboard Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse" id="sidebarMenu">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">
+                            <i class="fas fa-tachometer-alt me-2"></i>
+                            Overview
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-users me-2"></i>
+                            Students
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-chalkboard-teacher me-2"></i>
+                            Instructors
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">
+                            <i class="fas fa-book me-2"></i>
+                            Courses
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div
+                class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Dashboard Overview</h1>
+                {% if current_partner %}
+                <span class="badge bg-primary fs-6">{{ current_partner.name }}</span>
+                {% endif %}
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-xl-3 col-md-6">
+                    <div class="card bg-primary text-white h-100 dash-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="me-3">
+                                    <h5 class="card-title text-uppercase text-white-50 small">Total Students</h5>
+                                    <h2 class="display-6 fw-bold mb-0">124</h2>
+                                </div>
+                                <i class="fas fa-user-graduate fa-2x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card bg-success text-white h-100 dash-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="me-3">
+                                    <h5 class="card-title text-uppercase text-white-50 small">Instructors</h5>
+                                    <h2 class="display-6 fw-bold mb-0">12</h2>
+                                </div>
+                                <i class="fas fa-chalkboard-teacher fa-2x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card bg-warning text-dark h-100 dash-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="me-3">
+                                    <h5 class="card-title text-uppercase text-black-50 small">Active Courses</h5>
+                                    <h2 class="display-6 fw-bold mb-0">28</h2>
+                                </div>
+                                <i class="fas fa-book-open fa-2x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="card bg-info text-white h-100 dash-card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="me-3">
+                                    <h5 class="card-title text-uppercase text-white-50 small">Revenue (Mo)</h5>
+                                    <h2 class="display-6 fw-bold mb-0">$4.2k</h2>
+                                </div>
+                                <i class="fas fa-dollar-sign fa-2x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity / Lists -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0">Recent Enrollments</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush">
+                                {% if students %}
+                                {% for student in students %}
+                                <div class="list-group-item d-flex align-items-center p-3">
+                                    <div class="flex-shrink-0">
+                                        <div class="bg-light rounded-circle p-2 text-center"
+                                            style="width: 40px; height: 40px;">
+                                            <i class="fas fa-user text-primary"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h6 class="mb-0">{{ student.user.get_full_name|default:student.user.username }}
+                                        </h6>
+                                        <small class="text-muted">{{ student.user.email }}</small>
+                                    </div>
+                                    <span class="badge bg-light text-dark">Just now</span>
+                                </div>
+                                {% endfor %}
+                                {% else %}
+                                <div class="p-3 text-center text-muted">No recent students</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0">Top Courses</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush">
+                                {% if courses %}
+                                {% for course in courses %}
+                                <div class="list-group-item d-flex align-items-center p-3">
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0">{{ course.title }}</h6>
+                                        <small class="text-muted">{{ course.learners.count }} Students Enrolled</small>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">Active</span>
+                                </div>
+                                {% endfor %}
+                                {% else %}
+                                <div class="p-3 text-center text-muted">No active courses</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

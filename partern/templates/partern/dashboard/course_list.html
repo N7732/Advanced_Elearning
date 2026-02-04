@@ -1,0 +1,159 @@
+{% extends 'courses/base.html' %}
+
+{% block title %}Partner Courses - BlueLearn{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div
+        class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">Course Management</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{% url 'create_course' %}" class="btn btn-sm btn-primary">
+                <i class="fas fa-plus me-1"></i> Add New Course
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body">
+            <div class="bg-light p-3 rounded mb-4">
+                <form class="row g-3 align-items-center">
+                    <div class="col-auto">
+                        <label for="search" class="col-form-label fw-bold">Search:</label>
+                    </div>
+                    <div class="col-auto">
+                        <input type="text" id="search" class="form-control" placeholder="Course title...">
+                    </div>
+                    <div class="col-auto">
+                        <select class="form-select">
+                            <option value="">All Statuses</option>
+                            <option value="published">Published</option>
+                            <option value="draft">Draft</option>
+                        </select>
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-secondary">Filter</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Course Title</th>
+                            <th>Instructor</th>
+                            <th>Students</th>
+                            <th>Modules</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for course in courses %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if course.thumbnail %}
+                                    <img src="{{ course.thumbnail.url }}" class="rounded me-2" alt=""
+                                        style="width: 40px; height: 40px; object-fit: cover;">
+                                    {% else %}
+                                    <div class="bg-secondary rounded me-2 d-flex align-items-center justify-content-center text-white"
+                                        style="width: 40px; height: 40px;">
+                                        <i class="fas fa-book"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <div class="fw-bold">{{ course.title }}</div>
+                                        <small class="text-muted">ID: {{ course.id }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if course.instructor %}
+                                <a href="#" class="text-decoration-none">
+                                    {{ course.instructor.user.get_full_name|default:course.instructor.user.username }}
+                                </a>
+                                {% else %}
+                                <span class="text-muted">Unassigned</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    {{ course.student_count|default:"0" }} Enrolled
+                                </span>
+                            </td>
+                            <td>{{ course.modules.count }}</td>
+                            <td>
+                                {% if course.is_free %}
+                                <span class="badge bg-success">Free</span>
+                                {% else %}
+                                {{ course.currency }} {{ course.price }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if course.is_published %}
+                                <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>Published</span>
+                                {% else %}
+                                <span class="badge bg-warning text-dark"><i
+                                        class="fas fa-pen-square me-1"></i>Draft</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <a href="{% url 'course_detail' course.id %}"
+                                        class="btn btn-sm btn-outline-secondary" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="#" class="btn btn-sm btn-outline-primary" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-danger" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-5">
+                                <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">No courses found for this partner.</p>
+                                <a href="{% url 'create_course' %}" class="btn btn-primary mt-2">Create First Course</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% if is_paginated %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item"><a class="page-link"
+                            href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                    {% endif %}
+
+                    {% for i in paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == i %}active{% endif %}">
+                        <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                    </li>
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">Next</span></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

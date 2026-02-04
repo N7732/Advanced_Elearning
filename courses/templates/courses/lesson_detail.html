@@ -1,0 +1,80 @@
+{% extends 'courses/base.html' %}
+
+{% block title %}{{ lesson.title }} - BlueLearn{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Main Content (Video & Details) -->
+        <div class="col-lg-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'course_detail' lesson.module.course.id %}">{{
+                            lesson.module.course.title }}</a></li>
+                    <li class="breadcrumb-item">{{ lesson.module.title }}</li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ lesson.title }}</li>
+                </ol>
+            </nav>
+
+            <div class="lesson-video-container text-center mb-4">
+                {% if lesson.video_file %}
+                <video controls class="w-100 rounded shadow-sm">
+                    <source src="{{ lesson.video_file.url }}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+                {% elif lesson.video_url %}
+                <div class="ratio ratio-16x9">
+                    <iframe src="{{ lesson.video_url }}" title="YouTube video" allowfullscreen></iframe>
+                </div>
+                {% else %}
+                <div class="bg-dark text-white rounded p-5 d-flex flex-column justify-content-center align-items-center"
+                    style="height: 400px;">
+                    <i class="fas fa-play-circle fa-4x mb-3"></i>
+                    <h4>Content Placeholder</h4>
+                    <p>No video content available for this lesson.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h2 class="card-title fw-bold mb-3">{{ lesson.title }}</h2>
+                    <div class="card-text text-muted mb-4">
+                        {{ lesson.content|linebreaks }}
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button class="btn btn-outline-primary" disabled>
+                            <i class="fas fa-arrow-left me-2"></i> Previous Lesson
+                        </button>
+                        <button class="btn btn-primary">
+                            Next Lesson <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar (Course Navigation) -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 sticky-top" style="top: 80px;">
+                <div class="card-header bg-white fw-bold py-3">
+                    Course Content
+                </div>
+                <div class="card-body p-0">
+                    <div class="accordion accordion-flush" id="courseAccordion">
+                        <!-- In a real scenario, we'd need to pass the course object or related modules to this view -->
+                        <div class="p-3 text-center text-muted">
+                            <small>Navigation not available in this preview.</small>
+                            <div class="mt-2">
+                                <a href="{% url 'course_detail' lesson.module.course.id %}"
+                                    class="btn btn-sm btn-outline-secondary">Back to Course</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

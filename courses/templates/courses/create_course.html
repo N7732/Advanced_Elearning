@@ -1,0 +1,111 @@
+{% extends 'courses/base.html' %}
+
+{% block title %}Create Course - BlueLearn{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Create New Course</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="title" class="form-label fw-bold">Course Title</label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="description" class="form-label fw-bold">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="4"
+                                required></textarea>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="thumbnail" class="form-label fw-bold">Cover Image</label>
+                                <input type="file" class="form-control" id="thumbnail" name="thumbnail">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="currency" class="form-label fw-bold">Currency</label>
+                                <select class="form-select" id="currency" name="currency">
+                                    <option value="USD">USD</option>
+                                    <option value="EUR">EUR</option>
+                                    <option value="GBP">GBP</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 form-check">
+                            <input type="checkbox" class="form-check-input" id="is_free" name="is_free"
+                                onchange="togglePrice()">
+                            <label class="form-check-label fw-bold" for="is_free">This is a free course</label>
+                        </div>
+
+                        <div class="mb-4" id="price-container">
+                            <label for="price" class="form-label fw-bold">Price</label>
+                            <input type="number" class="form-control" id="price" name="price" step="0.01">
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="mb-3">Course Structure</h5>
+                        <div class="mb-3">
+                            <label for="lesson_count" class="form-label">Number of Modules</label>
+                            <input type="number" class="form-control" id="lesson_count" name="lesson_count" min="1"
+                                max="10" onchange="generateModules()">
+                            <small class="text-muted">Enter how many initial modules you want to add.</small>
+                        </div>
+
+                        <div id="modules-container">
+                            <!-- Modules will be generated here -->
+                        </div>
+
+                        <div class="d-grid mt-5">
+                            <button type="submit" class="btn btn-primary btn-lg">Create Course</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function togglePrice() {
+        const isFree = document.getElementById('is_free').checked;
+        const priceContainer = document.getElementById('price-container');
+        if (isFree) {
+            priceContainer.style.display = 'none';
+        } else {
+            priceContainer.style.display = 'block';
+        }
+    }
+
+    function generateModules() {
+        const count = document.getElementById('lesson_count').value;
+        const container = document.getElementById('modules-container');
+        container.innerHTML = '';
+
+        for (let i = 1; i <= count; i++) {
+            const moduleHtml = `
+                <div class="card mb-3 border-light bg-light">
+                    <div class="card-body">
+                        <h6 class="card-title text-primary">Module ${i}</h6>
+                        <div class="mb-2">
+                            <input type="text" class="form-control" name="module_${i}_title" placeholder="Module Title" required>
+                        </div>
+                        <div>
+                            <textarea class="form-control" name="module_${i}_description" placeholder="Description" rows="2"></textarea>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', moduleHtml);
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'courses/base.html' %}
+
+{% block title %}{{ quiz.title }} - BlueLearn{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0"><i class="fas fa-clipboard-question me-2"></i>{{ quiz.title }}</h4>
+                </div>
+                <div class="card-body p-5">
+                    <div class="text-center mb-5">
+                        <h5 class="text-muted mb-4">Test your knowledge!</h5>
+                        <div class="d-inline-block bg-light px-4 py-2 rounded-pill border">
+                            <i class="far fa-clock me-2"></i> No time limit
+                        </div>
+                    </div>
+
+                    <!-- Placeholder for Quiz Questions -->
+                    <form>
+                        <div class="mb-4">
+                            <h5 class="fw-bold mb-3">1. This is a sample question placeholder?</h5>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="q1" id="q1a">
+                                <label class="form-check-label" for="q1a">Answer Option A</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="q1" id="q1b">
+                                <label class="form-check-label" for="q1b">Answer Option B</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="q1" id="q1c">
+                                <label class="form-check-label" for="q1c">Answer Option C</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-5">
+                            <h5 class="fw-bold mb-3">2. Another sample question to demonstrate layout?</h5>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="q2" id="q2a">
+                                <label class="form-check-label" for="q2a">True</label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="q2" id="q2b">
+                                <label class="form-check-label" for="q2b">False</label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Submit Quiz</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light text-center py-3">
+                    <a href="#" class="text-decoration-none text-muted">Back to Module</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}BlueLearn - Professional eLearning{% endblock %}</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-blue: #2A6EBB;
+            --secondary-blue: #4A90E2;
+            --light-blue: #E3F2FD;
+            --dark-blue: #0D3B66;
+            --accent-orange: #FF9800;
+            --accent-green: #4CAF50;
+            --light-gray: #f8f9fa;
+            --text-dark: #333333;
+            --text-light: #666666;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            color: var(--text-dark);
+            background-color: #ffffff;
+            line-height: 1.6;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            color: var(--dark-blue);
+        }
+
+        /* Navigation */
+        .navbar {
+            background: linear-gradient(135deg, var(--dark-blue) 0%, var(--primary-blue) 100%);
+            box-shadow: 0 4px 12px rgba(42, 110, 187, 0.15);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: white !important;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+            padding: 0.6rem 1.8rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--dark-blue);
+            border-color: var(--dark-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(13, 59, 102, 0.2);
+        }
+
+        .btn-accent {
+            background-color: var(--accent-orange);
+            border-color: var(--accent-orange);
+            color: white;
+            font-weight: 600;
+            border-radius: 8px;
+        }
+
+        /* Cards */
+        .course-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(42, 110, 187, 0.08);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            height: 100%;
+        }
+
+        .course-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 30px rgba(42, 110, 187, 0.15);
+        }
+
+        .card-header {
+            background-color: var(--light-blue);
+            border-bottom: 3px solid var(--secondary-blue);
+            padding: 1.2rem;
+        }
+
+        /* Progress Bars */
+        .progress {
+            height: 10px;
+            border-radius: 5px;
+            background-color: #e9ecef;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, var(--secondary-blue), var(--primary-blue));
+            border-radius: 5px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark-blue);
+            color: white;
+            padding: 3rem 0 1.5rem;
+            margin-top: 4rem;
+        }
+
+        /* Dashboard Styles */
+        .dashboard-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(42, 110, 187, 0.1);
+            border-left: 4px solid var(--primary-blue);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Lesson Player */
+        .lesson-video-container {
+            background: var(--light-blue);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background-color: #f8fafc;
+            border-right: 1px solid #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .sidebar-sticky {
+            padding: 2rem 1rem;
+        }
+
+        .sidebar .nav-link {
+            color: var(--text-light) !important;
+            padding: 0.7rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar .nav-link.active {
+            background-color: var(--light-blue);
+            color: var(--primary-blue) !important;
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-section {
+                text-align: center;
+                padding: 3rem 1rem;
+            }
+
+            .course-card {
+                margin-bottom: 1.5rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="fas fa-graduation-cap me-2"></i>BlueLearn
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'home' %}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'course_list' %}">Courses</a>
+                </li>
+
+                {% if request.user.is_authenticated %}
+                {% if request.user.instructor_profile %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'create_course' %}">Create Course</a>
+                </li>
+                {% endif %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user-circle me-1"></i> {{ request.user.username }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">Profile</a></li>
+                        {% if request.user.managed_partners.exists or request.user.is_superuser %}
+                        <li><a class="dropdown-item" href="{% url 'partern:partner_dashboard' %}">Partner Dashboard</a>
+                        </li>
+                        {% endif %}
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">Logout</a></li>
+                    </ul>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'accounts:login' %}">Login</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle btn btn-accent ms-2 text-white" href="#" id="registerDropdown"
+                        role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Register
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="registerDropdown">
+                        <li><a class="dropdown-item" href="{% url 'accounts:learner_register' %}">As Learner</a></li>
+                        <li><a class="dropdown-item" href="{% url 'accounts:instructor_register' %}">As Instructor</a>
+                        </li>
+                    </ul>
+                </li>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container-fluid">
+        <div class="row">
+            {% if sidebar %}
+            <!-- Sidebar -->
+            <div class="col-lg-3 col-xl-2 sidebar d-none d-lg-block">
+                <div class="sidebar-sticky">
+                    {% block sidebar %}{% endblock %}
+                </div>
+            </div>
+            <div class="col-lg-9 col-xl-10">
+                {% else %}
+                <div class="col-12">
+                    {% endif %}
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5 class="mb-3"><i class="fas fa-graduation-cap me-2"></i>BlueLearn</h5>
+                    <p>Professional eLearning platform designed to transform education with modern technology.</p>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5 class="mb-3">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'home' %}" class="text-light text-decoration-none">Home</a></li>
+                        <li><a href="{% url 'course_list' %}" class="text-light text-decoration-none">All Courses</a>
+                        </li>
+                        <li><a href="#" class="text-light text-decoration-none">Instructors</a></li>
+                        <li><a href="#" class="text-light text-decoration-none">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5 class="mb-3">Connect With Us</h5>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="text-light fs-5"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="text-light fs-5"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="text-light fs-5"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="text-light fs-5"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr class="bg-light">
+            <div class="text-center pt-3">
+                <p class="mb-0">&copy; 2024 BlueLearn. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>
