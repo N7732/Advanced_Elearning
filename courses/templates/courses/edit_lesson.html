@@ -1,0 +1,170 @@
+{% extends 'courses/base.html' %}
+
+{% block title %}Edit Lesson - BlueLearn{% endblock %}
+
+{% block extra_css %}
+<!-- Editor CSS if needed -->
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Edit Lesson: {{ lesson.title }}</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            Please correct the errors below.
+                            {{ form.errors }}
+                        </div>
+                        {% endif %}
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Lesson Title</label>
+                            {{ form.title }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Lesson Type</label>
+                            {{ form.lesson_type }}
+                        </div>
+
+                        <div class="mb-3 content-field">
+                            <label class="form-label fw-bold">Content (Text)</label>
+                            <!-- Rich Text Editor Target -->
+                            {{ form.content }}
+                        </div>
+
+                        <div class="mb-3 video-field">
+                            <label class="form-label fw-bold">Video URL</label>
+                            {{ form.video_url }}
+                            <small class="text-muted">YouTube, Vimeo, Google Drive, or Image URL</small>
+                        </div>
+
+                        <div class="mb-3 code-field">
+                            <label class="form-label fw-bold">Code Template</label>
+                            {{ form.code_template }}
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Order</label>
+                                {{ form.order }}
+                            </div>
+                            <div class="col-md-6 d-flex align-items-center mt-3">
+                                <div class="form-check">
+                                    {{ form.is_published }}
+                                    <label class="form-check-label" for="{{ form.is_published.id_for_label }}">
+                                        Published
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hidden field for module if needed -->
+                        <div class="mb-3">
+                            <label class="form-label">Module:</label>
+                            <select class="form-control" disabled>
+                                <option>{{ lesson.module.title }}</option>
+                            </select>
+                            <!-- Actual field is in form but we might need to handle it carefully if it's required -->
+                            <div class="d-none">
+                                {{ form.module }}
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-primary">Update Lesson</button>
+                            <a href="{% url 'lesson_detail' lesson.id %}"
+                                class="btn btn-outline-secondary mt-2">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- TinyMCE CDN -->
+<script src="https://cdn.tiny.cloud/1/30842fl2uv0e6tmoh0diverm0dqrmkduldtheg6trhcaf62g/tinymce/6/tinymce.min.js"
+    referrerpolicy="origin"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Init TinyMCE
+        tinymce.init({
+            selector: 'textarea[name="content"]',
+            plugins: 'image media link code lists textcolor colorpicker table preview codesample',
+            toolbar: 'undo redo | formatselect | bold italic underline forecolor backcolor | alignleft aligncenter alignright | bullist numlist | link image media codesample | code preview',
+            height: 400,
+            image_title: true,
+            automatic_uploads: true,
+            file_picker_types: 'image',
+            /* and here's our custom image picker*/
+            file_picker_callback: function (cb, value, meta) {
+                var input = document.createElement('input');
+                input.setAttribute('type', 'file');
+                input.setAttribute('accept', 'image/*');
+
+                input.onchange = function () {
+                    var file = this.files[0];
+
+                    var reader = new FileReader();
+                    reader.onload = function () {
+                        /*
+                        Note: Now we need to register the blob in TinyMCEs image blob
+                        registry. In the next release this part hopefully won't be
+                        necessary, as we are looking to handle it internally.
+                        */
+                        var id = 'blobid' + (new Date()).getTime();
+                        var blobCache = tinymce.activeEditor.editorUpload.blobCache;
+                        var base64 = reader.result.split(',')[1];
+                        var blobInfo = blobCache.create(id, file, base64);
+                        blobCache.add(blobInfo);
+
+                        /* call the callback and populate the Title field with the file name */
+                        cb(blobInfo.blobUri(), { title: file.name });
+                    };
+                    reader.readAsDataURL(file);
+                };
+
+                input.click();
+            },
+            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
+        });
+
+        const typeSelect = document.querySelector('select[name="lesson_type"]');
+        const contentField = document.querySelector('.content-field');
+        const videoField = document.querySelector('.video-field');
+        const codeField = document.querySelector('.code-field');
+
+        function toggleFields() {
+            const type = typeSelect.value;
+            // Logic matches add_lesson
+            if (type === 'video') {
+                videoField.style.display = 'block';
+            } else {
+                // Keep visible generally because user might want text description + video link at bottom
+                videoField.style.display = 'block';
+            }
+            if (type === 'code') {
+                codeField.style.display = 'block';
+            } else {
+                codeField.style.display = 'none';
+            }
+        }
+
+        if (typeSelect) {
+            typeSelect.addEventListener('change', toggleFields);
+            toggleFields();
+        }
+    });
+</script>
+{% endblock %}

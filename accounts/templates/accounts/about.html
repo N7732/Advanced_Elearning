@@ -1,0 +1,439 @@
+{% extends 'courses/base.html' %}
+{% load static %}
+
+{% block title %}About Us - BlueLearn{% endblock %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+    :root {
+        --brand-primary: #0d47a1; /* Deep Royal Blue */
+        --brand-accent: #2979ff;  /* Brighter Tech Blue */
+        --brand-dark: #1e293b;
+        --text-muted: #64748b;
+        --bg-light: #f8fafc;
+        --font-heading: 'Poppins', sans-serif;
+        --font-body: 'Inter', sans-serif;
+    }
+
+    body {
+        font-family: var(--font-body);
+        color: var(--brand-dark);
+    }
+
+    h1, h2, h3, h4, h5 {
+        font-family: var(--font-heading);
+        color: var(--brand-dark);
+        letter-spacing: -0.5px;
+    }
+
+    /* Hero Section */
+    .hero-section {
+        background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
+        padding: 80px 0;
+        overflow: hidden;
+    }
+    
+    .hero-img-wrapper {
+        position: relative;
+    }
+    
+    .hero-img-wrapper img {
+        border-radius: 24px;
+        transform: rotate(2deg);
+        transition: transform 0.4s ease;
+    }
+    
+    .hero-img-wrapper:hover img {
+        transform: rotate(0deg);
+    }
+
+    /* Cards & Hovers */
+    .feature-card {
+        transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+        border: 1px solid rgba(0,0,0,0.05);
+        background: white;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important;
+        border-color: var(--brand-accent);
+    }
+
+    .icon-circle {
+        width: 80px;
+        height: 80px;
+        background: rgba(41, 121, 255, 0.1);
+        color: var(--brand-primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        transition: all 0.3s ease;
+    }
+
+    .feature-card:hover .icon-circle {
+        background: var(--brand-primary);
+        color: white;
+    }
+
+    /* Buttons */
+    .btn-primary-custom {
+        background-color: var(--brand-primary);
+        border-color: var(--brand-primary);
+        color: white;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary-custom:hover {
+        background-color: var(--brand-accent);
+        border-color: var(--brand-accent);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(41, 121, 255, 0.3);
+    }
+
+    .btn-outline-custom {
+        color: var(--brand-primary);
+        border: 2px solid var(--brand-primary);
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 600;
+    }
+
+    .btn-outline-custom:hover {
+        background-color: var(--brand-primary);
+        color: white;
+    }
+
+    /* Custom Check List */
+    .custom-check-list li {
+        position: relative;
+        padding-left: 35px;
+        margin-bottom: 15px;
+    }
+    
+    .custom-check-list li i {
+        position: absolute;
+        left: 0;
+        top: 4px;
+        color: var(--brand-accent);
+    }
+
+    /* Stats Section */
+    .stats-section {
+        background: var(--brand-primary);
+        color: white;
+        border-radius: 30px;
+    }
+    
+    .stats-section h3 {
+        color: white;
+    }
+    
+    .stats-section .display-6 {
+        color: #64b5f6; /* Lighter blue for stats numbers */
+    }
+</style>
+
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <span class="badge bg-primary bg-opacity-10 text-primary mb-3 px-3 py-2 rounded-pill fw-bold">🚀 Premier E-Learning in Rwanda</span>
+                <h1 class="display-4 fw-bold mb-4 lh-tight">
+                    Empowering Africa's Future Through <span class="text-primary">Technology.</span>
+                </h1>
+                <p class="lead text-secondary mb-5 pe-lg-5">
+                    BlueLearn is bridging the technology skills gap by providing practical, project-based education that prepares students for real-world challenges.
+                </p>
+                <div class="d-flex flex-wrap gap-3">
+                    <a href="{% url 'course_list' %}" class="btn btn-primary-custom">
+                        <i class="fas fa-play-circle me-2"></i> Start Learning
+                    </a>
+                    <a href="{% url 'accounts:contact' %}" class="btn btn-outline-custom">
+                        <i class="fas fa-handshake me-2"></i> Partner With Us
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="hero-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                         alt="African students learning technology" 
+                         class="img-fluid shadow-lg w-100">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container py-4">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="card feature-card h-100 rounded-4 border-0 shadow-sm p-4">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="icon-circle ms-0 me-4" style="width: 60px; height: 60px;">
+                                <i class="fas fa-bullseye fa-lg"></i>
+                            </div>
+                            <h3 class="fw-bold mb-0">Our Mission</h3>
+                        </div>
+                        <blockquote class="blockquote border-start border-4 border-primary ps-4 mb-4">
+                            <p class="fs-5 fst-italic text-dark">
+                                "To Improve Rwandans and all African youth in Technology and Career Guidance"
+                            </p>
+                        </blockquote>
+                        <p class="text-secondary mb-0">
+                            We're committed to transforming education by making quality tech skills accessible to every young African, regardless of their background or location.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card feature-card h-100 rounded-4 border-0 shadow-sm p-4">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="icon-circle ms-0 me-4" style="width: 60px; height: 60px;">
+                                <i class="fas fa-eye fa-lg"></i>
+                            </div>
+                            <h3 class="fw-bold mb-0">Our Vision</h3>
+                        </div>
+                        <blockquote class="blockquote border-start border-4 border-primary ps-4 mb-4">
+                            <p class="fs-5 fst-italic text-dark">
+                                "Future Technology Will Be in Youth"
+                            </p>
+                        </blockquote>
+                        <p class="text-secondary mb-0">
+                            We envision a future where African youth lead global technological innovation, equipped with practical skills learned through our platform.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5" style="background-color: var(--bg-light);">
+    <div class="container py-4">
+        <div class="row mb-5 justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h6 class="text-uppercase text-primary fw-bold letter-spacing-2">Ecosystem</h6>
+                <h2 class="fw-bold display-6 mb-3">How BlueLearn Works</h2>
+                <p class="lead text-secondary">A comprehensive platform serving multiple educational stakeholders across the continent.</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card border-0 h-100 rounded-4 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-circle">
+                            <i class="fas fa-university fa-2x"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">Universities</h5>
+                        <p class="small text-secondary mb-0">
+                            Institutions buy space to upload courses, enabling continuous learning during holidays using institutional credentials.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card border-0 h-100 rounded-4 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-circle">
+                            <i class="fas fa-landmark fa-2x"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">Govt & NGOs</h5>
+                        <p class="small text-secondary mb-0">
+                            Bootcamps and training institutes prepare courses with full credential systems for controlled learner access.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card border-0 h-100 rounded-4 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-circle">
+                            <i class="fas fa-chalkboard-teacher fa-2x"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">Instructors</h5>
+                        <p class="small text-secondary mb-0">
+                            Industry professionals can host free or paid courses, sharing their expertise with a wider audience.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card feature-card border-0 h-100 rounded-4 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="icon-circle">
+                            <i class="fas fa-graduation-cap fa-2x"></i>
+                        </div>
+                        <h5 class="fw-bold mb-3">Students</h5>
+                        <p class="small text-secondary mb-0">
+                            Access practical courses focused on real projects used in Rwanda and Africa with clear, step-by-step guidance.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container py-4">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0">
+                <div class="position-relative">
+                    <div class="position-absolute bg-primary rounded-circle opacity-10" style="width: 200px; height: 200px; top: -20px; left: -20px; z-index: -1;"></div>
+                    <img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                         alt="Practical project-based learning" 
+                         class="img-fluid rounded-4 shadow-lg w-100">
+                </div>
+            </div>
+            <div class="col-lg-6 ps-lg-5">
+                <h6 class="text-uppercase text-primary fw-bold">Methodology</h6>
+                <h2 class="fw-bold mb-4">Why Project-Based Learning?</h2>
+                <p class="text-secondary mb-4">
+                    Theory is important, but practice builds careers. Our courses are designed around <strong>real projects</strong> used in Rwandan companies, ensuring students gain hands-on experience.
+                </p>
+                <ul class="list-unstyled custom-check-list">
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <strong>Real-World Projects:</strong> Courses based on actual industry needs.
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <strong>Quick Understanding:</strong> Simplified explanations of complex topics.
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <strong>Project Completion:</strong> Every course ends with a tangible portfolio piece.
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <strong>AI & Emerging Tech:</strong> Special focus on future technologies.
+                    </li>
+                    <li>
+                        <i class="fas fa-check-circle"></i>
+                        <strong>Career Guidance:</strong> Pathways to employment and entrepreneurship.
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5" style="background-color: var(--bg-light);">
+    <div class="container py-4">
+        <div class="row align-items-center">
+            <div class="col-lg-6 order-lg-2">
+                <div class="position-relative">
+                    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                         alt="Platform integration" 
+                         class="img-fluid rounded-4 shadow-lg">
+                </div>
+            </div>
+            <div class="col-lg-6 order-lg-1 pe-lg-5">
+                <h2 class="fw-bold mb-4">Seamless Integration for Organizations</h2>
+                <p class="mb-5 text-secondary">
+                    We provide comprehensive e-learning solutions for organizations wanting to establish or enhance their digital learning presence.
+                </p>
+                
+                <div class="d-flex mb-4">
+                    <div class="flex-shrink-0">
+                        <div class="rounded-circle bg-white shadow-sm p-3 text-primary">
+                            <i class="fas fa-database fa-lg"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5 class="fw-bold">Database Integration</h5>
+                        <p class="text-secondary small">Connect your existing student database. Students use institutional credentials for seamless access.</p>
+                    </div>
+                </div>
+                
+                <div class="d-flex mb-4">
+                    <div class="flex-shrink-0">
+                        <div class="rounded-circle bg-white shadow-sm p-3 text-primary">
+                            <i class="fas fa-cloud-upload-alt fa-lg"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5 class="fw-bold">Easy Course Management</h5>
+                        <p class="text-secondary small">Upload and update courses via our intuitive interface. Set access controls and track analytics.</p>
+                    </div>
+                </div>
+
+                <div class="d-flex">
+                    <div class="flex-shrink-0">
+                        <div class="rounded-circle bg-white shadow-sm p-3 text-primary">
+                            <i class="fas fa-users fa-lg"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h5 class="fw-bold">Multi-Tenant Architecture</h5>
+                        <p class="text-secondary small">Your own branded learning space backed by our robust infrastructure.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="stats-section p-5 mb-5 shadow-lg">
+            <div class="row g-4 text-center">
+                <div class="col-12 mb-4">
+                    <h3 class="fw-bold">Our Impact in African Education</h3>
+                </div>
+                <div class="col-md-3 col-6 border-end border-light border-opacity-25">
+                    <div class="display-6 fw-bold">100+</div>
+                    <p class="mb-0 small text-white-50">Practical Courses</p>
+                </div>
+                <div class="col-md-3 col-6 border-end border-light border-opacity-25">
+                    <div class="display-6 fw-bold">50+</div>
+                    <p class="mb-0 small text-white-50">Industry Projects</p>
+                </div>
+                <div class="col-md-3 col-6 border-end border-light border-opacity-25">
+                    <div class="display-6 fw-bold">24/7</div>
+                    <p class="mb-0 small text-white-50">Learning Access</p>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="display-6 fw-bold">100%</div>
+                    <p class="mb-0 small text-white-50">Africa-Focused</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center py-5">
+            <h2 class="fw-bold mb-3">Ready to Join the Revolution?</h2>
+            <p class="lead text-secondary mb-4 w-75 mx-auto">
+                Whether you're a university, government agency, or individual instructor, BlueLearn provides the tools to deliver impactful digital education.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'accounts:learner_register' %}" class="btn btn-primary-custom btn-lg">
+                    <i class="fas fa-user-plus me-2"></i> Get Started
+                </a>
+                <a href="{% url 'accounts:contact' %}" class="btn btn-outline-dark rounded-pill px-4 py-3 fw-bold">
+                    <i class="fas fa-envelope me-2"></i> Request Demo
+                </a>
+            </div>
+            <p class="mt-4 mb-0 text-muted small">
+                <i class="fas fa-info-circle me-1"></i>
+                Custom solutions available for large organizations
+            </p>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

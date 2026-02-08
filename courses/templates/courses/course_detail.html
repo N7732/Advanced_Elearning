@@ -12,7 +12,8 @@
                 <div class="d-flex gap-3 align-items-center">
                     <div class="d-flex align-items-center">
                         <i class="fas fa-user-circle fa-2x me-2"></i>
-                        <span>Created by {{ course.instructor.user.username|default:"Instructor" }}</span>
+                        <span>Created by {{ course.instructor.user.get_full_name|default:course.instructor.user.username
+                            }}</span>
                     </div>
                     {% if course.created_at %}
                     <span class="text-white-50"><i class="far fa-calendar-alt me-1"></i> {{ course.created_at|date:"M d,
@@ -41,14 +42,25 @@
                 {% for module in course.modules.all %}
                 <div class="accordion-item mb-3 border rounded overflow-hidden">
                     <h2 class="accordion-header" id="heading{{ module.id }}">
-                        <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} bg-light"
-                            type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ module.id }}"
-                            aria-expanded="true" aria-controls="collapse{{ module.id }}">
-                            <div class="d-flex align-items-center w-100 justify-content-between pe-3">
-                                <strong>{{ module.title }}</strong>
-                                <span class="badge bg-secondary rounded-pill">{{ module.lessons.count }} Lessons</span>
+                        <div class="d-flex align-items-center bg-light">
+                            <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} flex-grow-1"
+                                type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ module.id }}"
+                                aria-expanded="true" aria-controls="collapse{{ module.id }}">
+                                <div>
+                                    <strong>{{ module.title }}</strong>
+                                    <span class="badge bg-secondary rounded-pill ms-2">{{ module.lessons.count }}
+                                        Lessons</span>
+                                </div>
+                            </button>
+                            {% if request.user == course.instructor.user %}
+                            <div class="pe-3 ps-2">
+                                <a href="{% url 'add_lesson' module.id %}"
+                                    class="btn btn-sm btn-primary stop-propagation text-nowrap">
+                                    <i class="fas fa-plus"></i> Add Lesson
+                                </a>
                             </div>
-                        </button>
+                            {% endif %}
+                        </div>
                     </h2>
                     <div id="collapse{{ module.id }}"
                         class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
@@ -67,9 +79,29 @@
                                     {% endif %}
                                 </a>
                                 {% endfor %}
-                                {% if not module.lessons.exists %}
-                                <div class="p-3 text-muted fst-italic text-center">No lessons in this module yet.</div>
+
+                                <!-- Module Quizzes -->
+                                {% for quiz in module.quizzes.all %}
+                                {% if quiz.is_locked %}
+                                <div
+                                    class="list-group-item list-group-item-secondary d-flex justify-content-between align-items-center py-3">
+                                    <span class="text-muted">
+                                        <i class="fas fa-lock me-2"></i>
+                                        Quiz: {{ quiz.title }} (Locked)
+                                    </span>
+                                    <span class="badge bg-secondary text-light">Locked</span>
+                                </div>
+                                {% else %}
+                                <a href="{% url 'quiz_detail' quiz.id %}"
+                                    class="list-group-item list-group-item-action list-group-item-info d-flex justify-content-between align-items-center py-3">
+                                    <span>
+                                        <i class="fas fa-clipboard-check text-info me-2"></i>
+                                        Quiz: {{ quiz.title }}
+                                    </span>
+                                    <span class="badge bg-info text-dark">Quiz</span>
+                                </a>
                                 {% endif %}
+                                {% endfor %}
                             </div>
                         </div>
                     </div>
@@ -79,6 +111,34 @@
             {% else %}
             <div class="alert alert-warning">
                 No modules available for this course yet.
+            </div>
+            {% endif %}
+
+            <!-- Course Exams -->
+            {% if course.exams.all %}
+            <h3 class="mb-4 mt-5 text-primary bb-2 border-bottom pb-2">Final Exams</h3>
+            <div class="list-group mb-5">
+                {% for exam in course.exams.all %}
+                {% if exam.is_locked %}
+                <div
+                    class="list-group-item list-group-item-secondary d-flex justify-content-between align-items-center py-3">
+                    <span class="text-muted">
+                        <i class="fas fa-lock me-2"></i>
+                        Exam: {{ exam.title }} (Locked)
+                    </span>
+                    <span class="badge bg-secondary text-light">Locked</span>
+                </div>
+                {% else %}
+                <a href="{% url 'quiz_detail' exam.id %}"
+                    class="list-group-item list-group-item-action list-group-item-warning d-flex justify-content-between align-items-center py-3">
+                    <span>
+                        <i class="fas fa-file-contract text-warning me-2"></i>
+                        Exam: {{ exam.title }}
+                    </span>
+                    <span class="badge bg-warning text-dark">Final Exam</span>
+                </a>
+                {% endif %}
+                {% endfor %}
             </div>
             {% endif %}
         </div>
@@ -97,8 +157,24 @@
 
                     <div class="d-grid gap-2">
                         {% if user.is_authenticated %}
-                        <!-- Enrollment Logic to be added here -->
-                        <button class="btn btn-primary btn-lg">Enroll Now</button>
+                        {% if enrollment_status == 'active' %}
+                        <a href="{% url 'lesson_detail' course.modules.first.lessons.first.id|default:'#' %}"
+                            class="btn btn-success btn-lg">
+                            <i class="fas fa-play-circle me-2"></i> Continue Learning
+                        </a>
+                        {% elif enrollment_status == 'pending' %}
+                        <button class="btn btn-warning btn-lg" disabled>
+                            <i class="fas fa-clock me-2"></i> Pending Approval
+                        </button>
+                        {% else %}
+                        <a href="{% url 'enroll_course' course.id %}" class="btn btn-primary btn-lg">
+                            {% if course.is_free %}
+                            Start Learning
+                            {% else %}
+                            Enroll Now
+                            {% endif %}
+                        </a>
+                        {% endif %}
                         {% else %}
                         <a href="{% url 'accounts:login' %}?next={{ request.path }}"
                             class="btn btn-primary btn-lg">Login to Enroll</a>
@@ -117,4 +193,14 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.querySelectorAll('.stop-propagation').forEach(function (element) {
+        element.addEventListener('click', function (e) {
+            e.stopPropagation();
+        });
+    });
+</script>
 {% endblock %}

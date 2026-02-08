@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 from .models import Learner, Instructor, AccountProfile
+from partern.models import TenantPartner
 
 User = get_user_model()
 
@@ -12,15 +13,36 @@ class LearnerRegistrationForm(UserCreationForm):
     last_name = forms.CharField(max_length=30, required=True)
     phone_number = forms.CharField(max_length=15, required=False)
     date_of_birth = forms.DateField(required=False, widget=forms.DateInput(attrs={'type': 'date'}))
+    terms_agreed = forms.BooleanField(required=True)
     
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name']
+        fields = ['email', 'first_name', 'last_name']
+        
+    def save(self, commit=True):
+        """
+        Saves the form data and sets the username to the email address.
+        
+        Args:
+            commit (bool): whether to save the user to the database.
+        
+        Returns:
+            User: The created user instance.
+        """
+        user = super().save(commit=False)
+        user.username = self.cleaned_data['email']
+        if commit:
+            user.save()
+        return user
         
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the form and adds Bootstrap class to fields.
+        """
         super().__init__(*args, **kwargs)
         for field in self.fields:
-            self.fields[field].widget.attrs.update({'class': 'form-control'})
+            if field != 'terms_agreed':
+                self.fields[field].widget.attrs.update({'class': 'form-control'})
 
 class InstructorRegistrationForm(UserCreationForm):
     """Form for instructor registration"""
@@ -28,17 +50,25 @@ class InstructorRegistrationForm(UserCreationForm):
     first_name = forms.CharField(max_length=30, required=True)
     last_name = forms.CharField(max_length=30, required=True)
     phone_number = forms.CharField(max_length=15, required=False)
+    professional_title = forms.CharField(max_length=100, required=False)
     bio = forms.CharField(widget=forms.Textarea, required=False)
-    specialization = forms.CharField(max_length=200, required=False)
+    expertise_areas = forms.CharField(widget=forms.HiddenInput, required=False)
+    experience_level = forms.CharField(max_length=20, required=False)
+    linkedin_profile = forms.URLField(required=False)
+    terms_agreed = forms.BooleanField(required=True)
     
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name', 'last_name']
         
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the form and adds Bootstrap class to fields.
+        """
         super().__init__(*args, **kwargs)
         for field in self.fields:
-            self.fields[field].widget.attrs.update({'class': 'form-control'})
+            if field != 'terms_agreed':
+                self.fields[field].widget.attrs.update({'class': 'form-control'})
 
 class LearnerForm(forms.ModelForm):
     """Form for editing learner profile"""

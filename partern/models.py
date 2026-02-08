@@ -27,6 +27,7 @@ class TenantPartner(models.Model):
     active = models.BooleanField(default=False, help_text="Partner is active and approved")
     max_users = models.PositiveIntegerField(default=5, help_text="Maximum number of students allowed")
     structure_type = models.CharField(max_length=20, choices=Structure_type, default='None')
+    allow_public_registration = models.BooleanField(default=False, help_text="Allow students to register publicly without invitation")
     
     # Link to partner admin user
     admin_user = models.ForeignKey(

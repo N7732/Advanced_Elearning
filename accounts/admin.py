@@ -1,6 +1,30 @@
 from django.contrib import admin
-from .models import Learner, Instructor, Subscription, AccountProfile
+from django.contrib.auth.admin import UserAdmin
+from .models import User, Learner, Instructor, Subscription, AccountProfile
 
+class InstructorInline(admin.StackedInline):
+    model = Instructor
+    can_delete = False
+    verbose_name_plural = 'Instructor Profile'
+    fk_name = 'user'
+
+class LearnerInline(admin.StackedInline):
+    model = Learner
+    can_delete = False
+    verbose_name_plural = 'Learner Profile'
+    fk_name = 'user'
+
+@admin.register(User)
+class CustomUserAdmin(UserAdmin):
+    list_display = ('username', 'email', 'user_type', 'is_staff', 'is_active')
+    list_filter = ('user_type', 'is_staff', 'is_active')
+    fieldsets = UserAdmin.fieldsets + (
+        ('Custom Fields', {'fields': ('user_type',)}),
+    )
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        ('Custom Fields', {'fields': ('email', 'user_type',)}),
+    )
+    inlines = (InstructorInline, LearnerInline)
 admin.site.site_header = "E-Learning Platform Admin"
 admin.site.site_title = "E-Learning Platform Admin Portal"  
 admin.site.index_title = "Welcome to E-Learning Platform Admin"

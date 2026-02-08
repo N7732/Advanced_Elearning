@@ -10,12 +10,23 @@ class User(AbstractUser):
     user_type = models.CharField(max_length=20, choices=USER_TYPE_CHOICES)
     email = models.EmailField(unique=True)
 
+    @property
+    def is_learner(self):
+        return self.user_type == 'learner'
+
+    @property
+    def is_instructor(self):
+        return self.user_type == 'instructor'
+    
+    @property
+    def is_admin_user(self):
+        return self.user_type == 'admin' or self.is_superuser
+
 class Learner(models.Model):
     """
     Learner/Student profile linked to Django User
     Can be associated with a partner organization
     """
-
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='learner_profile')
     partner = models.ForeignKey(
         'partern.TenantPartner', 
@@ -26,7 +37,7 @@ class Learner(models.Model):
         help_text="Partner organization this student belongs to"
     )
     phone_number = models.CharField(max_length=15, blank=True)
-    registration_number = models.CharField(max_length=50, unique=True, blank=True)
+    registration_number = models.CharField(max_length=50, unique=True, blank=True, null=True)
     enrolled_courses = models.ManyToManyField('courses.Course', related_name='learners', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     birth_date = models.DateField(null=True, blank=True)

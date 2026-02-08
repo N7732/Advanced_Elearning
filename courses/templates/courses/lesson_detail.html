@@ -2,78 +2,262 @@
 
 {% block title %}{{ lesson.title }} - BlueLearn{% endblock %}
 
+{% block extra_css %}
+<style>
+    /* Ensure footer covers fixed sidebar */
+    footer {
+        position: relative;
+        z-index: 1000;
+        background-color: var(--dark-blue);
+    }
+
+    /* Standard Lesson Typography */
+    .lesson-content {
+        font-family: 'Inter', sans-serif;
+        font-size: 1.1rem;
+        line-height: 1.8;
+        color: #333;
+    }
+
+    .lesson-content h2,
+    .lesson-content h3 {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        color: var(--dark-blue);
+        font-weight: 600;
+    }
+
+    .lesson-content p {
+        margin-bottom: 1.5rem;
+    }
+
+    .lesson-content ul,
+    .lesson-content ol {
+        margin-bottom: 1.5rem;
+        padding-left: 2rem;
+    }
+
+    /* Mobile Responsiveness for Videos */
+    .lesson-video-container {
+        position: relative;
+        width: 100%;
+        margin-bottom: 2rem;
+    }
+
+    .ratio-16x9 {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Code Block Styling */
+    pre {
+        background: #2d2d2d !important;
+        border-radius: 8px;
+        padding: 1.5rem !important;
+        margin: 2rem 0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        position: relative;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 991.98px) {
+        .col-lg-8 {
+            margin-bottom: 3rem;
+        }
+
+        .sidebar-sticky {
+            position: static !important;
+            /* Unstick on mobile */
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-4">
+<div class="container-fluid py-4 px-4">
     <div class="row">
-        <!-- Main Content (Video & Details) -->
-        <div class="col-lg-8">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'course_detail' lesson.module.course.id %}">{{
-                            lesson.module.course.title }}</a></li>
-                    <li class="breadcrumb-item">{{ lesson.module.title }}</li>
-                    <li class="breadcrumb-item active" aria-current="page">{{ lesson.title }}</li>
-                </ol>
-            </nav>
-
-            <div class="lesson-video-container text-center mb-4">
-                {% if lesson.video_file %}
-                <video controls class="w-100 rounded shadow-sm">
-                    <source src="{{ lesson.video_file.url }}" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-                {% elif lesson.video_url %}
-                <div class="ratio ratio-16x9">
-                    <iframe src="{{ lesson.video_url }}" title="YouTube video" allowfullscreen></iframe>
+        <!-- LEFT Sidebar (Course Navigation) -->
+        <div class="col-lg-3 d-none d-lg-block">
+            <div class="card shadow-sm border-0"
+                style="position: fixed; top: 80px; width: 23%; bottom: 20px; overflow-y: auto; z-index: 90;">
+                <div class="card-header bg-white fw-bold py-3 d-flex justify-content-between align-items-center">
+                    <span>Course Content</span>
+                    <a href="{% url 'course_detail' lesson.module.course.id %}" class="btn btn-sm btn-outline-secondary"
+                        title="Back to Course Overview">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
                 </div>
-                {% else %}
-                <div class="bg-dark text-white rounded p-5 d-flex flex-column justify-content-center align-items-center"
-                    style="height: 400px;">
-                    <i class="fas fa-play-circle fa-4x mb-3"></i>
-                    <h4>Content Placeholder</h4>
-                    <p>No video content available for this lesson.</p>
-                </div>
-                {% endif %}
-            </div>
-
-            <div class="card shadow-sm border-0 mb-4">
-                <div class="card-body">
-                    <h2 class="card-title fw-bold mb-3">{{ lesson.title }}</h2>
-                    <div class="card-text text-muted mb-4">
-                        {{ lesson.content|linebreaks }}
-                    </div>
-
-                    <div class="d-flex justify-content-between">
-                        <button class="btn btn-outline-primary" disabled>
-                            <i class="fas fa-arrow-left me-2"></i> Previous Lesson
-                        </button>
-                        <button class="btn btn-primary">
-                            Next Lesson <i class="fas fa-arrow-right ms-2"></i>
-                        </button>
+                <div class="card-body p-0">
+                    <div class="accordion accordion-flush" id="courseAccordion">
+                        {% for module in modules %}
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading{{ module.id }}">
+                                <button
+                                    class="accordion-button {% if module.id != lesson.module.id %}collapsed{% endif %}"
+                                    type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ module.id }}">
+                                    <span class="fw-bold text-dark">{{ module.title }}</span>
+                                </button>
+                            </h2>
+                            <div id="collapse{{ module.id }}"
+                                class="accordion-collapse collapse {% if module.id == lesson.module.id %}show{% endif %}"
+                                data-bs-parent="#courseAccordion">
+                                <div class="accordion-body p-0">
+                                    <div class="list-group list-group-flush">
+                                        {% for mod_lesson in module.lessons.all %}
+                                            {% if mod_lesson.is_published or request.user == lesson.module.course.instructor.user %}
+                                            <a href="{% url 'lesson_detail' mod_lesson.id %}"
+                                                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-4 py-3 border-0 {% if mod_lesson.id == lesson.id %}bg-primary-light text-primary fw-bold border-start border-4 border-primary{% endif %}">
+                                                <div class="d-flex align-items-center">
+                                                    <i
+                                                        class="fas {% if mod_lesson.lesson_type == 'video' %}fa-play-circle{% elif mod_lesson.lesson_type == 'code' %}fa-code{% else %}fa-file-alt{% endif %} me-2"></i>
+                                                    <span class="text-truncate" style="max-width: 180px;">{{ mod_lesson.title }}</span>
+                                                </div>
+                                                {% if mod_lesson.id in completed_lesson_ids %}
+                                                <i class="fas fa-check-circle text-success"></i>
+                                                {% else %}
+                                                <i class="far fa-circle text-muted"></i>
+                                                {% endif %}
+                                            </a>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Sidebar (Course Navigation) -->
-        <div class="col-lg-4">
-            <div class="card shadow-sm border-0 sticky-top" style="top: 80px;">
-                <div class="card-header bg-white fw-bold py-3">
-                    Course Content
-                </div>
-                <div class="card-body p-0">
-                    <div class="accordion accordion-flush" id="courseAccordion">
-                        <!-- In a real scenario, we'd need to pass the course object or related modules to this view -->
-                        <div class="p-3 text-center text-muted">
-                            <small>Navigation not available in this preview.</small>
-                            <div class="mt-2">
-                                <a href="{% url 'course_detail' lesson.module.course.id %}"
-                                    class="btn btn-sm btn-outline-secondary">Back to Course</a>
+        <!-- RIGHT Main Content (Video & Details) -->
+        <div class="col-lg-9">
+            <!-- Mobile Navigation Toggle (Visible only on small screens) -->
+            <div class="d-lg-none mb-3">
+                <button class="btn btn-outline-primary w-100" type="button" data-bs-toggle="offcanvas"
+                    data-bs-target="#courseSidebar">
+                    <i class="fas fa-bars me-2"></i> Course Content
+                </button>
+            </div>
+
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'course_detail' lesson.module.course.id %}">{{ lesson.module.course.title }}</a></li>
+                    <li class="breadcrumb-item">{{ lesson.module.title }}</li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ lesson.title }}</li>
+                </ol>
+            </nav>
+
+            <div class="lesson-content-container mb-4">
+                {% if lesson.lesson_type == 'video' %}
+                <div class="lesson-video-container text-center mb-4">
+                    {% if lesson.video_url %}
+                        {% with media_type=lesson.media_type embed_url=lesson.embed_url %}
+                            {% if media_type == 'video_file' %}
+                            <video controls autoplay class="w-100 rounded shadow-sm" preload="metadata">
+                                <source src="{{ lesson.video_url }}">
+                                Your browser does not support the video tag.
+                            </video>
+                            {% elif media_type == 'image' %}
+                            <img src="{{ lesson.video_url }}" class="img-fluid rounded shadow-sm" alt="{{ lesson.title }}"
+                                onerror="this.onerror=null; this.src=''; this.alt='Image failed to load. Please check the URL.'; this.classList.add('d-none'); this.insertAdjacentHTML('afterend', '<div class=\'alert alert-warning\'>Image could not be loaded. Usage of blocked or private URL?</div>');">
+                            {% elif media_type == 'youtube' or media_type == 'vimeo' %}
+                            <div class="ratio ratio-16x9">
+                                <iframe src="{{ embed_url }}" title="Lesson Video" allowfullscreen
+                                    allow="autoplay; encrypted-media"></iframe>
                             </div>
+                            {% elif media_type == 'drive' %}
+                            <div class="ratio ratio-16x9">
+                                <iframe src="{{ embed_url }}" title="Lesson Video" allow="autoplay"></iframe>
+                            </div>
+                            {% else %}
+                            <div class="ratio ratio-16x9">
+                                <iframe src="{{ lesson.video_url }}" title="Lesson Video" allowfullscreen></iframe>
+                            </div>
+                            {% endif %}
+                        {% endwith %}
+                    {% else %}
+                    <div class="alert alert-warning">No video URL provided.</div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                {% if lesson.lesson_type == 'code' %}
+                <div class="card bg-light border-dark mb-4">
+                    <div class="card-header bg-dark text-white">Code Exercise / Template</div>
+                    <div class="card-body">
+                        <pre><code class="language-python">{{ lesson.code_template }}</code></pre>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            {% if request.user == lesson.module.course.instructor.user %}
+            <div class="mb-3 text-end">
+                <a href="{% url 'edit_lesson' lesson.id %}" class="btn btn-warning">
+                    <i class="fas fa-edit me-1"></i> Edit Lesson
+                </a>
+            </div>
+            {% endif %}
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body">
+                    <h2 class="card-title fw-bold mb-3">{{ lesson.title }}</h2>
+                    <div class="d-flex align-items-center mb-3">
+                        {% if lesson.id in completed_lesson_ids %}
+                        <span class="badge bg-success me-2"><i class="fas fa-check me-1"></i> Completed</span>
+                        {% endif %}
+                    </div>
+                    <div class="card-text lesson-content mb-4">
+                        {{ lesson.content|safe }}
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-5 pt-3 border-top">
+                        <!-- Navigation Buttons could go here if needed, but sidebar is primary -->
+                        <div>
+                            <!-- Placeholder for Prev -->
                         </div>
+
+                        <form method="post">
+                            {% csrf_token %}
+                            <button type="submit" name="mark_complete" class="btn btn-success btn-lg px-5">
+                                {% if lesson.id in completed_lesson_ids %}
+                                Next Lesson <i class="fas fa-arrow-right ms-2"></i>
+                                {% else %}
+                                Mark as Complete <i class="fas fa-check ms-2"></i>
+                                {% endif %}
+                            </button>
+                        </form>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Offcanvas Sidebar for Mobile -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="courseSidebar">
+    <div class="offcanvas-header">
+        <h5 class="offcanvas-title">Course Content</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        <div class="list-group list-group-flush">
+            {% for module in modules %}
+            <div class="list-group-item bg-light fw-bold">{{ module.title }}</div>
+            {% for mod_lesson in module.lessons.all %}
+                {% if mod_lesson.is_published or request.user == lesson.module.course.instructor.user %}
+                <a href="{% url 'lesson_detail' mod_lesson.id %}"
+                    class="list-group-item list-group-item-action px-4 {% if mod_lesson.id == lesson.id %}active{% endif %}">
+                    {{ mod_lesson.title }}
+                    {% if mod_lesson.id in completed_lesson_ids %}
+                    <i class="fas fa-check-circle float-end text-success bg-white rounded-circle"></i>
+                    {% endif %}
+                </a>
+                {% endif %}
+            {% endfor %}
+            {% endfor %}
         </div>
     </div>
 </div>

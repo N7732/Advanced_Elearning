@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.utils.text import slugify
 
 class Course(models.Model):
     DIFFICULTY_CHOICES = [
@@ -9,7 +9,7 @@ class Course(models.Model):
     ]
 
     title = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=200, unique=True)
+    slug = models.SlugField(max_length=200, unique=True, blank=True)
     description = models.TextField()
     is_published = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -60,6 +60,17 @@ class Course(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.get_difficulty_level_display()})"
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base_slug = slugify(self.title)
+            slug = base_slug
+            counter = 1
+            while Course.objects.filter(slug=slug).exists():
+                slug = f"{base_slug}-{counter}"
+                counter += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
 
 class CoursePrerequisite(models.Model):
     """
@@ -113,18 +124,98 @@ class Lesson(models.Model):
     def __str__(self):
         return f"{self.title} (Module: {self.module.title if self.module else 'None'})"
     
+    @property
+    def media_type(self):
+        """
+        Determine the type of media from the URL.
+        Returns: 'youtube', 'vimeo', 'drive', 'video_file', 'image', 'unknown'
+        """
+        if not self.video_url:
+            return 'unknown'
+        
+        url = self.video_url.lower()
+
+        # Prioritize known services
+        if 'youtube.com' in url or 'youtu.be' in url:
+            return 'youtube'
+        elif 'vimeo.com' in url:
+            return 'vimeo'
+        elif 'drive.google.com' in url:
+            return 'drive'
+        
+        # Check extensions anywhere in URL (handles query params)
+        if any(ext in url for ext in ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp']):
+            return 'image'
+            
+        if any(ext in url for ext in ['.mp4', '.webm', '.ogg', '.mov']):
+            return 'video_file'
+
+        return 'unknown'
+
+    @property
+    def embed_url(self):
+        """
+        Transform the URL into an embeddable version if necessary.
+        """
+        if not self.video_url:
+            return ''
+            
+        url = self.video_url
+        if self.media_type == 'youtube':
+            if 'watch?v=' in url:
+                return url.replace('watch?v=', 'embed/')
+            elif 'youtu.be/' in url:
+                return url.replace('youtu.be/', 'youtube.com/embed/')
+        elif self.media_type == 'drive':
+             # Transform view/share links to preview links
+             if '/view' in url:
+                 return url.replace('/view', '/preview')
+             elif '/sharing' in url:
+                 return url.replace('/sharing', '/preview')
+        
+        return url
+
+    
 class Quizes(models.Model):
-    lesson = models.ForeignKey(Lesson, related_name='quizes', on_delete=models.CASCADE)
-    question = models.TextField()
+    # Lesson link kept for backward compatibility (can be null now)
+    lesson = models.ForeignKey(Lesson, related_name='quizes', on_delete=models.CASCADE, null=True, blank=True)
+    
+    # New Links for Hierarchical Structure
+    module = models.ForeignKey(Module, related_name='quizzes', on_delete=models.CASCADE, null=True, blank=True)
+    course = models.ForeignKey(Course, related_name='exams', on_delete=models.CASCADE, null=True, blank=True)
+    
+    title = models.CharField(max_length=200, default="Quiz")
+    description = models.TextField(blank=True, help_text="Instructions for the quiz/exam")
+    
+    # Renamed 'question' to 'description' effectively, but keeping strict field if migration is hard. 
+    # Actually, let's keep 'question' field as a legacy "intro text" if needed, or map it. 
+    # The user didn't ask to delete fields. Let's assume 'question' field was the 'intro'.
+    question = models.TextField(help_text="Introduction/Description of the quiz", default="Quiz Description")
+
     max_attempts = models.PositiveIntegerField(default=1)
     time_limit = models.PositiveIntegerField(help_text="Time limit in seconds", default=60)
     order = models.PositiveIntegerField(default=0)
+    is_locked = models.BooleanField(default=False, help_text="If checked, this quiz/exam cannot be taken by students.")
 
     class Meta:
         ordering = ['order']
+        verbose_name = "Quiz/Exam"
+        verbose_name_plural = "Quizzes & Exams"
 
     def __str__(self):
-        return f"Quiz for Lesson: {self.lesson.title}"
+        if self.course:
+            return f"Exam: {self.title} (Course: {self.course.title})"
+        elif self.module:
+            return f"Quiz: {self.title} (Module: {self.module.title})"
+        elif self.lesson:
+            return f"Quiz: {self.title} (Lesson: {self.lesson.title})"
+        return f"Quiz: {self.title}"
+    
+    @property
+    def type(self):
+        if self.course: return "Exam"
+        if self.module: return "Module Quiz"
+        return "Lesson Quiz"
     
 class QuizQuestion(models.Model):
     quiz = models.ForeignKey(Quizes, related_name='questions', on_delete=models.CASCADE)
@@ -147,11 +238,12 @@ class QuizQuestion(models.Model):
         ordering = ['order']
 
     def __str__(self):
-        return f"Question for Quiz: {self.quiz.id}"
+        return f"Question for Quiz: {self.quiz.title}"
     
 class Enrollment(models.Model):
     status = models.CharField(max_length=20, choices=[
         ('active', 'Active'),
+        ('pending', 'Pending Approval'),
         ('completed', 'Completed'),
         ('dropped', 'Dropped'),
     ], default='active')
@@ -180,3 +272,17 @@ class Certificate(models.Model):
 
     def __str__(self):
         return f"Certificate for {self.enrollment.learner.user.username} - {self.enrollment.course.title}"
+
+class LessonProgress(models.Model):
+    learner = models.ForeignKey('accounts.Learner', related_name='lesson_progress', on_delete=models.CASCADE)
+    lesson = models.ForeignKey(Lesson, related_name='progress', on_delete=models.CASCADE)
+    is_completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('learner', 'lesson')
+        verbose_name = "Lesson Progress"
+        verbose_name_plural = "Lesson Progress"
+
+    def __str__(self):
+        return f"{self.learner} - {self.lesson} - {'Completed' if self.is_completed else 'In Progress'}"

@@ -9,9 +9,16 @@ def learner_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect('accounts:login')
+        
         if hasattr(request.user, 'learner_profile'):
             return view_func(request, *args, **kwargs)
-        return redirect('unauthorized')
+            
+        # Fallback: Auto-create info missing but type matches
+        if request.user.user_type == 'learner':
+            Learner.objects.create(user=request.user)
+            return view_func(request, *args, **kwargs)
+            
+        return redirect('home')
     return _wrapped_view
 
 def instructor_required(view_func):
@@ -20,9 +27,61 @@ def instructor_required(view_func):
     def _wrapped_view(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return redirect('accounts:login')
+            
         if hasattr(request.user, 'instructor_profile'):
             return view_func(request, *args, **kwargs)
-        return redirect('unauthorized')
+            
+        # Fallback: Auto-create info missing but type matches OR is superuser
+        if request.user.user_type == 'instructor' or request.user.is_superuser:
+            Instructor.objects.create(user=request.user)
+            return view_func(request, *args, **kwargs)
+            
+        return redirect('home')
+    return _wrapped_view
+
+def is_admin(view_func):
+    """Decorator to require user to be an admin (superuser)"""
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('accounts:login')
+        if request.user.is_superuser:
+            return view_func(request, *args, **kwargs)
+        return redirect('home')
+    return _wrapped_view
+
+def user_is_learner_or_instructor(view_func):
+    """Decorator to require user to be either a learner or an instructor"""
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('accounts:login')
+        
+        # Check profiles or auto-create if types match
+        has_learner = hasattr(request.user, 'learner_profile')
+        has_instructor = hasattr(request.user, 'instructor_profile')
+        
+        if has_learner or has_instructor:
+             return view_func(request, *args, **kwargs)
+             
+        if request.user.user_type == 'learner':
+             Learner.objects.create(user=request.user)
+             return view_func(request, *args, **kwargs)
+             
+        if request.user.user_type == 'instructor':
+             Instructor.objects.create(user=request.user)
+             return view_func(request, *args, **kwargs)
+
+        return redirect('home')
+    return _wrapped_view
+
+def user_is_authenticated(view_func):
+    """Decorator to require user to be authenticated"""
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return view_func(request, *args, **kwargs)
+        return redirect('accounts:login')
     return _wrapped_view
 
 def get_user_profile(user):
@@ -79,34 +138,3 @@ def get_learners_by_name(name):
 def get_active_subscriptions(learner):
     """Get active subscriptions for a learner"""
     return learner.subscriptions.filter(active=True)
-
-def is_admin(view_func):
-    """Decorator to require user to be an admin (superuser)"""
-    @wraps(view_func)
-    def _wrapped_view(request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect('accounts:login')
-        if request.user.is_superuser:
-            return view_func(request, *args, **kwargs)
-        return redirect('unauthorized')
-    return _wrapped_view
-
-def user_is_authenticated(view_func):
-    """Decorator to require user to be authenticated"""
-    @wraps(view_func)
-    def _wrapped_view(request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return view_func(request, *args, **kwargs)
-        return redirect('accounts:login')
-    return _wrapped_view
-
-def user_is_learner_or_instructor(view_func):
-    """Decorator to require user to be either a learner or an instructor"""
-    @wraps(view_func)
-    def _wrapped_view(request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect('accounts:login')
-        if hasattr(request.user, 'learner_profile') or hasattr(request.user, 'instructor_profile'):
-            return view_func(request, *args, **kwargs)
-        return redirect('unauthorized')
-    return _wrapped_view
