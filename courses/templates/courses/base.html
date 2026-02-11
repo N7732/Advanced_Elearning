@@ -199,14 +199,24 @@
                     {% if user.is_authenticated %}
                     {% if user.is_instructor or user.is_admin_user %}
                     <li class="nav-item">
-                        <a class="nav-link {% if 'dashboard' in request.resolver_match.url_name %}active{% endif %}"
+                        <a class="nav-link {% if 'dashboard' in request.path %}active{% endif %}"
                             href="{% url 'instructor_dashboard' %}">
                             <i class="fas fa-tachometer-alt me-1"></i> Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{% url 'create_course' %}">
+                        <a class="nav-link {% if 'create' in request.path %}active{% endif %}"
+                            href="{% url 'create_course' %}">
                             <i class="fas fa-plus-circle me-1"></i> Create Course
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'messages' in request.path %}active{% endif %}"
+                            href="{% url 'instructor_messages' %}">
+                            <i class="fas fa-envelope me-1"></i> Messages
+                            {% if unread_messages_count > 0 %}
+                            <span class="badge rounded-pill bg-danger shadow-sm">{{ unread_messages_count }}</span>
+                            {% endif %}
                         </a>
                     </li>
                     {% endif %}
@@ -241,6 +251,13 @@
                             <li>
                                 <a class="dropdown-item" href="{% url 'instructor_dashboard' %}">
                                     <i class="fas fa-chalkboard-teacher me-2"></i> Instructor Panel
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% if user.is_superuser %}
+                            <li>
+                                <a class="dropdown-item" href="{% url 'superadmin_dashboard:overview' %}">
+                                    <i class="fas fa-shield-alt me-2"></i> SuperAdmin
                                 </a>
                             </li>
                             {% endif %}

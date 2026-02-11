@@ -12,6 +12,9 @@ from .views import (
     user_login,
     user_logout,
     profile,
+    CustomPasswordResetView, CustomPasswordResetDoneView, 
+    CustomPasswordResetConfirmView, CustomPasswordResetCompleteView,
+    CustomPasswordChangeView, CustomPasswordChangeDoneView
 )
 
 # API Router
@@ -45,4 +48,14 @@ urlpatterns = [
     #profile update
     path('profile/edit/', learner_edit_profile, name='edit_profile'),
     path('profile/edit/instructor/', instructor_edit_profile, name='edit_profile_instructor'),
+
+    # Password Reset
+    path('password-reset/', CustomPasswordResetView.as_view(), name='password_reset'),
+    path('password-reset/done/', CustomPasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('password-reset/confirm/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('password-reset/complete/', CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
+
+    # Password Change
+    path('password-change/', CustomPasswordChangeView.as_view(), name='password_change'),
+    path('password-change/done/', CustomPasswordChangeDoneView.as_view(), name='password_change_done'),
 ]

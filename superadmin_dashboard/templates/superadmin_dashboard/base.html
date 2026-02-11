@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SuperAdmin Dashboard | BlueLearn{% endblock %}</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary-color: #10b981;
+            --dark-bg: #111827;
+            --sidebar-bg: #1f2937;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #e5e7eb;
+            --glass-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: 'Outfit', sans-serif;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 1000;
+            padding: 0;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.05);
+            background-color: var(--sidebar-bg);
+            transition: all 0.3s ease;
+            width: 260px;
+            overflow-y: auto;
+        }
+
+        .sidebar-brand {
+            height: 70px;
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            background-color: rgba(0, 0, 0, 0.1);
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 1.4rem;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-brand span {
+            color: var(--primary-color);
+        }
+
+        .nav-item {
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.85rem 1.5rem;
+            color: #d1d5db;
+            font-weight: 500;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover {
+            color: white;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .nav-link.active {
+            color: white;
+            background-color: rgba(79, 70, 229, 0.1);
+            border-left-color: var(--primary-color);
+        }
+
+        .nav-link i {
+            width: 24px;
+            margin-right: 12px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-heading {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9ca3af;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            padding: 0 1.5rem;
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .main-wrapper {
+            margin-left: 260px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* Top Navbar */
+        .top-navbar {
+            height: 70px;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 900;
+        }
+
+        .search-bar {
+            position: relative;
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .search-input {
+            background-color: #f3f4f6;
+            border: none;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border-radius: 8px;
+            width: 100%;
+            transition: all 0.2s;
+        }
+
+        .search-input:focus {
+            background-color: white;
+            box-shadow: 0 0 0 2px var(--primary-color);
+            outline: none;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .user-profile {
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+
+        .user-profile:hover {
+            background-color: #f3f4f6;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        /* Dashboard Cards */
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-wrapper {
+                margin-left: 0;
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <i class="fas fa-shield-alt me-2 text-primary"></i> Super<span>Admin</span>
+        </div>
+
+        <div class="sidebar-content py-3">
+            <ul class="nav flex-column">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'overview' %}active{% endif %}"
+                        href="{% url 'superadmin_dashboard:overview' %}">
+                        <i class="fas fa-th-large"></i> Overview
+                    </a>
+                </li>
+
+                <h6 class="sidebar-heading">Management</h6>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if 'tenants' in request.path %}active{% endif %}"
+                        href="{% url 'superadmin_dashboard:tenant_list' %}">
+                        <i class="fas fa-building"></i> Tenants/Partners
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'messages' in request.path %}active{% endif %}"
+                        href="{% url 'superadmin_dashboard:admin_inbox' %}">
+                        <i class="fas fa-envelope"></i> Messages
+                        {% if unread_messages_count > 0 %}
+                        <span class="badge rounded-pill bg-danger ms-auto">{{ unread_messages_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'learners' in request.path or 'instructors' in request.path or 'admins' in request.path %}active{% endif %}"
+                        href="#userManagement" data-bs-toggle="collapse">
+                        <i class="fas fa-users"></i> Users <i class="fas fa-chevron-down ms-auto small"></i>
+                    </a>
+                    <div class="collapse {% if 'learners' in request.path or 'instructors' in request.path or 'admins' in request.path %}show{% endif %} px-2"
+                        id="userManagement">
+                        <ul class="nav flex-column small">
+                            <li class="nav-item"><a
+                                    class="nav-link py-1 {% if 'learners' in request.path %}text-white fw-bold{% endif %}"
+                                    href="{% url 'superadmin_dashboard:learner_list' %}">Learners</a></li>
+                            <li class="nav-item"><a
+                                    class="nav-link py-1 {% if 'instructors' in request.path %}text-white fw-bold{% endif %}"
+                                    href="{% url 'superadmin_dashboard:instructor_list' %}">Instructors</a></li>
+                            <li class="nav-item"><a
+                                    class="nav-link py-1 {% if 'admins' in request.path %}text-white fw-bold{% endif %}"
+                                    href="{% url 'superadmin_dashboard:admin_user_list' %}">Admins/Staff</a></li>
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if 'courses' in request.path %}active{% endif %}"
+                        href="{% url 'superadmin_dashboard:global_course_list' %}">
+                        <i class="fas fa-graduation-cap"></i> Courses
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">
+                        <i class="fas fa-money-bill-wave"></i> Financials
+                    </a>
+                </li>
+
+                <h6 class="sidebar-heading">System</h6>
+
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'global_settings' %}active{% endif %}"
+                        href="{% url 'superadmin_dashboard:global_settings' %}">
+                        <i class="fas fa-cogs"></i> Global Settings
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.resolver_match.url_name == 'audit_logs' %}active{% endif %}"
+                        href="{% url 'superadmin_dashboard:audit_logs' %}">
+                        <i class="fas fa-list-alt"></i> Audit Logs
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <div class="mt-auto p-3 border-top border-secondary">
+            <a href="{% url 'accounts:logout' %}" class="nav-link text-danger">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <!-- Top Navbar -->
+        <header class="top-navbar">
+            <button class="btn btn-link d-lg-none" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+
+            <div class="search-bar d-none d-md-block">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search tenants, users, courses...">
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+                <div class="dropdown">
+                    <button class="btn btn-link text-dark position-relative" type="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-bell fa-lg"></i>
+                        {% if unread_notifications_count > 0 %}
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            {{ unread_notifications_count }}
+                            <span class="visually-hidden">unread messages</span>
+                        </span>
+                        {% endif %}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0" style="width: 300px;">
+                        <li>
+                            <h6 class="dropdown-header">Recent Notifications</h6>
+                        </li>
+                        {% for notification in recent_notifications %}
+                        <li>
+                            <a class="dropdown-item {% if not notification.is_read %}fw-bold{% endif %}"
+                                href="{% url 'superadmin_dashboard:notification_list' %}">
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-{% if notification.notification_type == 'info' %}primary{% elif notification.notification_type == 'success' %}success{% elif notification.notification_type == 'warning' %}warning{% else %}danger{% endif %} bg-opacity-10 text-{% if notification.notification_type == 'info' %}primary{% elif notification.notification_type == 'success' %}success{% elif notification.notification_type == 'warning' %}warning{% else %}danger{% endif %} rounded-circle p-1 me-2"
+                                        style="font-size: 0.7rem;">
+                                        <i
+                                            class="fas {% if notification.notification_type == 'info' %}fa-info-circle{% elif notification.notification_type == 'success' %}fa-check-circle{% elif notification.notification_type == 'warning' %}fa-exclamation-triangle{% else %}fa-times-circle{% endif %}"></i>
+                                    </div>
+                                    <div class="text-truncate" style="max-width: 220px;">
+                                        <div class="small">{{ notification.title }}</div>
+                                        <div class="text-muted small" style="font-size: 0.7rem;">{{
+                                            notification.created_at|timesince }} ago</div>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        {% empty %}
+                        <li><a class="dropdown-item text-center small text-muted" href="#">No notifications</a></li>
+                        {% endfor %}
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item text-center small text-primary"
+                                href="{% url 'superadmin_dashboard:notification_list' %}">See all notifications</a></li>
+                    </ul>
+                </div>
+
+                <div class="dropdown">
+                    <div class="d-flex align-items-center user-profile" data-bs-toggle="dropdown">
+                        <div class="text-end me-2 d-none d-sm-block">
+                            <div class="fw-bold small">{{ request.user.get_full_name|default:"Super Admin" }}</div>
+                            <div class="text-muted small" style="font-size: 0.75rem;">Administrator</div>
+                        </div>
+                        <img src="https://ui-avatars.com/api/?name={{ request.user.username }}&background=4f46e5&color=fff"
+                            alt="Admin" class="user-avatar">
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user-circle me-2"></i> Profile</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i> Settings</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i
+                                    class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="p-4">
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('sidebarToggle').addEventListener('click', function () {
+            document.getElementById('sidebar').classList.toggle('active');
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

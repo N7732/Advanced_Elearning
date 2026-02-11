@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404, render, redirect
+from django.utils.decorators import method_decorator
 from django.http import HttpResponse
 from .models import Course, Module, Lesson, Quizes
 from .serializer import CourseSerializer, ModuleSerializer, LessonSerializer, QuizesSerializer  
@@ -15,7 +16,13 @@ from .serializer import (
     CourseSerializer, ModuleSerializer, LessonSerializer, QuizesSerializer,
     EnrollmentSerializer, CertificateSerializer
 )
-from .forms import LessonForm
+from superadmin_dashboard.models import DirectMessage
+from superadmin_dashboard.forms import DirectMessageForm
+from django.contrib.auth import get_user_model
+User = get_user_model()
+from django.views.generic import ListView, CreateView, TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.urls import reverse_lazy
 
 class CourseViewSet(viewsets.ModelViewSet):
     queryset = Course.objects.all()
@@ -440,4 +447,56 @@ def home(request):
         Q(end_date__isnull=True) | Q(end_date__gte=timezone.now().date())
     )
     return render(request, 'courses/home.html', {'partners': active_partners})
+
+@method_decorator(instructor_required, name='dispatch')
+class InstructorInboxView(LoginRequiredMixin, ListView):
+    model = DirectMessage
+    template_name = 'courses/instructor_messages.html'
+    context_object_name = 'messages'
+    paginate_by = 20
+
+    def get_queryset(self):
+        return DirectMessage.objects.filter(recipient=self.request.user)
+
+@method_decorator(instructor_required, name='dispatch')
+class InstructorSentMessagesView(LoginRequiredMixin, ListView):
+    model = DirectMessage
+    template_name = 'courses/instructor_sent_messages.html'
+    context_object_name = 'messages'
+    paginate_by = 20
+
+    def get_queryset(self):
+        return DirectMessage.objects.filter(sender=self.request.user)
+
+@method_decorator(instructor_required, name='dispatch')
+class InstructorSendMessageView(LoginRequiredMixin, CreateView):
+    model = DirectMessage
+    form_class = DirectMessageForm
+    template_name = 'courses/send_message_to_admin.html'
+    success_url = reverse_lazy('instructor_messages')
+
+    def form_valid(self, form):
+        # Find the superadmin (or the person to receive staff queries)
+        superadmin = User.objects.filter(is_superuser=True).first()
+        if not superadmin:
+             messages.error(self.request, "No administrator found to receive the message.")
+             return redirect('instructor_messages')
+             
+        form.instance.sender = self.request.user
+        form.instance.recipient = superadmin
+        messages.success(self.request, "Message sent to Superadmin.")
+        return super().form_valid(form)
+
+@method_decorator(instructor_required, name='dispatch')
+class InstructorMessageDetailView(LoginRequiredMixin, TemplateView):
+    template_name = 'courses/instructor_message_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        message = get_object_or_404(DirectMessage, id=self.kwargs.get('pk'))
+        if message.recipient == self.request.user:
+            message.is_read = True
+            message.save()
+        context['direct_message'] = message
+        return context
 

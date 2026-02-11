@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 10px;
+        }
+
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #4f46e5;
+        }
+
+        .content {
+            padding: 30px 0;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #777;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Enrollment Confirmed!</h2>
+        </div>
+        <div class="content">
+            <p>Hello {{ learner.user.get_full_name|default:learner.user.username }},</p>
+            <p>You have successfully enrolled in the course: <strong>{{ course.title }}</strong>.</p>
+            <p>You can now access your course materials and start learning at your own pace.</p>
+            <p><strong>Course Details:</strong></p>
+            <ul>
+                <li><strong>Instructor:</strong> {{ course.instructor.user.get_full_name }}</li>
+                <li><strong>Start Date:</strong> {% now "F j, Y" %}</li>
+            </ul>
+            <p>We wish you the best of luck with your studies!</p>
+            <p>Best regards,<br>The {{ settings.SITE_NAME }} Team</p>
+        </div>
+        <div class="footer">
+            <p>&copy; {% now 'Y' %} {{ settings.SITE_NAME }}. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+
+</html>

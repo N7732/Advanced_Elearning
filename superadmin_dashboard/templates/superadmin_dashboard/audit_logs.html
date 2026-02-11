@@ -1,0 +1,129 @@
+{% extends 'superadmin_dashboard/base.html' %}
+
+{% block title %}Audit Logs | SuperAdmin{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold text-dark mb-0">System Audit Logs</h2>
+        <div class="search-bar" style="max-width: 300px;">
+            <form method="get" class="position-relative">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" name="q" class="search-input" placeholder="Search logs..."
+                    value="{{ request.GET.q }}">
+            </form>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light text-muted small text-uppercase">
+                        <tr>
+                            <th class="ps-4 py-3">Timestamp</th>
+                            <th class="py-3">User</th>
+                            <th class="py-3">Action</th>
+                            <th class="py-3">Target</th>
+                            <th class="py-3">IP Address</th>
+                            <th class="pe-4 py-3 text-end">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for log in logs %}
+                        <tr>
+                            <td class="ps-4 text-muted small">
+                                {{ log.created_at|date:"M d, Y" }}<br>
+                                {{ log.created_at|date:"H:i:s" }}
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center me-2"
+                                        style="width: 32px; height: 32px; font-weight: 600; font-size: 0.8rem;">
+                                        {{ log.user.username|make_list|first|upper }}
+                                    </div>
+                                    <span class="fw-medium">{{ log.user.username|default:"System" }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-info-subtle text-info rounded-pill px-3 py-1 fw-medium">
+                                    {{ log.action }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="small">
+                                    {% if log.target_model %}
+                                    <span class="text-muted">{{ log.target_model }}</span>
+                                    {% if log.target_id %}
+                                    <span class="fw-bold">#{{ log.target_id }}</span>
+                                    {% endif %}
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </div>
+                            </td>
+                            <td class="text-muted small">
+                                {{ log.ip_address|default:"-" }}
+                            </td>
+                            <td class="pe-4 text-end">
+                                {% if log.details %}
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill px-3"
+                                    data-bs-toggle="popover" title="Log Details" data-bs-content="{{ log.details }}">
+                                    View details
+                                </button>
+                                {% else %}
+                                <span class="text-muted small">No extra info</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="py-4">
+                                    <i class="fas fa-history fa-3x mb-3 text-light"></i>
+                                    <h5 class="text-muted">No audit logs found</h5>
+                                    {% if request.GET.q %}
+                                    <p class="small text-muted">Try adjusting your search criteria.</p>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a class="page-link rounded-start-pill"
+                    href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Previous</a>
+            </li>
+            {% endif %}
+
+            <li class="page-item active"><span class="page-link px-4">Page {{ page_obj.number }} of {{
+                    paginator.num_pages }}</span></li>
+
+            {% if page_obj.has_next %}
+            <li class="page-item"><a class="page-link rounded-end-pill"
+                    href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+    var popoverList = popoverTriggerList.map(function (popoverTriggerEl) {
+        return new bootstrap.Popover(popoverTriggerEl)
+    })
+</script>
+{% endblock %}

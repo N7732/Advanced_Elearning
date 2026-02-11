@@ -24,6 +24,7 @@ urlpatterns = [
     path('', include('courses.urls')),
     path('partners/', include('partern.urls')),
     path('accounts/', include('accounts.urls')),
+    path('superadmin/', include('superadmin_dashboard.urls')),
 ]
 
 # Serve media files in development

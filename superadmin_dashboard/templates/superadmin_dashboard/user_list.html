@@ -1,0 +1,105 @@
+{% extends 'superadmin_dashboard/base.html' %}
+
+{% block title %}Manage Admin Users | SuperAdmin Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Manage Administrative Users</h1>
+    <div class="btn-toolbar mb-2 mb-md-0">
+        <button type="button" class="btn btn-sm btn-primary">
+            <i class="fas fa-user-plus"></i> Add Admin
+        </button>
+    </div>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 bg-white">
+        <h6 class="m-0 font-weight-bold text-primary">All Admins & Staff</h6>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">User</th>
+                        <th>Email</th>
+                        <th>Type</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Joined</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                <div class="bg-dark text-white rounded-circle me-2 d-flex align-items-center justify-content-center"
+                                    style="width: 32px; height: 32px;">
+                                    {{ user.first_name|first|default:user.username|first|upper }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark">{{ user.get_full_name|default:user.username }}</div>
+                                    <div class="text-muted small" style="font-size: 0.75rem;">@{{ user.username }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% if user.is_superuser %}
+                            <span class="badge bg-danger">SuperAdmin</span>
+                            {% elif user.user_type == 'admin' %}
+                            <span class="badge bg-primary">Partner Admin</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Staff</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_superuser %}
+                            System Owner
+                            {% elif user.managed_partners.all %}
+                            Admin for: {{ user.managed_partners.first.name }}
+                            {% else %}
+                            System Admin
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_active %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-danger">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                        <td class="text-end pe-4">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light text-secondary" type="button"
+                                    data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                    <li><a class="dropdown-item" href="#"><i class="fas fa-key me-2 text-info"></i>
+                                            Reset Password</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2 text-warning"></i>
+                                            Edit Permissions</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item text-danger" href="#"><i
+                                                class="fas fa-user-slash me-2"></i> Suspend Access</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">No administrative users found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

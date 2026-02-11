@@ -5,7 +5,8 @@ from .views import (
     EnrollmentViewSet, CertificateViewSet,
     home, course, create_course, course_list, course_detail, 
     lesson_detail, quiz_detail, add_lesson, edit_lesson, instructor_dashboard,
-    enroll_course, approve_enrollment, reject_enrollment
+    enroll_course, approve_enrollment, reject_enrollment,
+    InstructorInboxView, InstructorSentMessagesView, InstructorSendMessageView, InstructorMessageDetailView
 )
 
 router = DefaultRouter()
@@ -31,6 +32,12 @@ urlpatterns = [
     path('enroll/<int:course_id>/', enroll_course, name='enroll_course'),
     path('enrollment/<int:enrollment_id>/approve/', approve_enrollment, name='approve_enrollment'),
     path('enrollment/<int:enrollment_id>/reject/', reject_enrollment, name='reject_enrollment'),
+
+    # Instructor Messaging
+    path('instructor/messages/', InstructorInboxView.as_view(), name='instructor_messages'),
+    path('instructor/messages/sent/', InstructorSentMessagesView.as_view(), name='instructor_sent_messages'),
+    path('instructor/messages/send/', InstructorSendMessageView.as_view(), name='send_message_to_admin'),
+    path('instructor/messages/<int:pk>/', InstructorMessageDetailView.as_view(), name='instructor_message_detail'),
     
     # API Views
     path('', include(router.urls)),

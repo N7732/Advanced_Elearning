@@ -1,0 +1,122 @@
+{% extends 'superadmin_dashboard/base.html' %}
+
+{% block title %}Manage Courses | SuperAdmin Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">Manage All Courses</h1>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3 bg-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h6 class="m-0 font-weight-bold text-primary">All Platform Courses</h6>
+        <form method="get" class="d-flex gap-2">
+            <input type="text" name="q" class="form-control form-control-sm bg-light border-0 small"
+                placeholder="Search courses or instructors..." value="{{ request.GET.q|default:'' }}">
+            <select name="partner" class="form-select form-select-sm" style="width: 150px;">
+                <option value="">All Partners</option>
+                {% for partner in partners %}
+                   <option value="{{ partner.id }}"{% if request.GET.partner == partner.id|stringformat:"s" %}selected{% endif %}>{{ partner.name }}</option>
+                {% endfor %}
+            </select>
+            <button class="btn btn-primary btn-sm" type="submit">
+                <i class="fas fa-search fa-sm"></i>
+            </button>
+        </form>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Course Title</th>
+                        <th>Partner</th>
+                        <th>Instructor</th>
+                        <th>Students</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in courses %}
+                    <tr>
+                        <td class="ps-4">
+                            <div class="d-flex align-items-center">
+                                {% if course.thumbnail %}
+                                <img src="{{ course.thumbnail.url }}" class="rounded me-2" width="40" height="40"
+                                    style="object-fit: cover;">
+                                {% else %}
+                                <div class="bg-primary bg-opacity-10 text-primary rounded me-2 d-flex align-items-center justify-content-center"
+                                    style="width: 40px; height: 40px;">
+                                    <i class="fas fa-book"></i>
+                                </div>
+                                {% endif %}
+                                <span class="fw-bold text-dark">{{ course.title|truncatechars:40 }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            {% if course.partner %}
+                            <span class="badge bg-info bg-opacity-10 text-info">{{ course.partner.name }}</span>
+                            {% else %}
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary">Independent</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if course.instructor %}
+                            {{ course.instructor.user.get_full_name|default:course.instructor.user.username }}
+                            {% else %}
+                            <span class="text-muted">Unassigned</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ course.learners.count }}</td>
+                        <td>
+                            {% if course.is_free %}
+                            <span class="text-success fw-bold">Free</span>
+                            {% else %}
+                            {{ course.currency }} {{ course.price }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if course.is_published %}
+                            <span class="badge bg-success">Published</span>
+                            {% else %}
+                            <span class="badge bg-warning">Draft</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ course.created_at|date:"M d, Y" }}</td>
+                        <td class="text-end pe-4">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light text-secondary" type="button"
+                                    data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+                                    <li><a class="dropdown-item" href="#"><i class="fas fa-eye me-2 text-info"></i> View
+                                            Details</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2 text-warning"></i>
+                                            Edit Settings</a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item text-danger" href="#"><i
+                                                class="fas fa-trash-alt me-2"></i> Delete Course</a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="fas fa-graduation-cap fa-3x mb-3 text-gray-300"></i>
+                            <p>No courses found matching your criteria.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

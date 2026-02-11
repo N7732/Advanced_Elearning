@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,6 +29,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+SITE_NAME = 'BlueLearn'
+
 
 # Application definition
 
@@ -42,6 +46,7 @@ INSTALLED_APPS = [
     'accounts',
     'partern',
     'membership',
+    'superadmin_dashboard',
 ]
 
 MIDDLEWARE = [
@@ -66,6 +71,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'superadmin_dashboard.context_processors.global_context_data',
             ],
         },
     },
@@ -149,4 +155,13 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20,
 }
+
+
+# Email settings (for password reset, etc.) - configure as needed
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development, prints emails to console
+EMAIL_HOST = os.getenv('email_Host')
+EMAIL_PORT= 587
+EMAIL_HOST_USER = os.getenv('email_host_user')
+EMAIL_HOST_PASSWORD = os.getenv('email_host_password')
+EMAIL_USE_TLS = True
 

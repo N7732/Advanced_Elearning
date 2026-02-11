@@ -9,15 +9,8 @@ from .models import User, Learner, Instructor, AccountProfile
 def create_user_profile(sender, instance, created, **kwargs):
     # Always ensure AccountProfile exists
     AccountProfile.objects.get_or_create(user=instance)
-    
-    # Ensure specific profile exists based on type, even if not created (updated)
-    # Ensure specific profile exists based on type, even if not created (updated)
-    # if instance.user_type == 'learner':
-    #     Learner.objects.get_or_create(user=instance)
     if instance.user_type == 'instructor':
-        # Instructor.objects.get_or_create(user=instance)
         configure_instructor_permissions(instance)
-
 def configure_instructor_permissions(user):
     """
     Grants instructor permissions by:
@@ -34,7 +27,6 @@ def configure_instructor_permissions(user):
     # 2. Setup Instructors Group
     group, group_created = Group.objects.get_or_create(name='Instructors')
     
-    # If group was just created OR has no permissions, assign permissions
     if group_created or not group.permissions.exists():
         course_models = ['Course', 'Module', 'Lesson', 'Quizes', 'QuizQuestion', 'CoursePrerequisite']
         permissions_to_add = []
@@ -47,7 +39,6 @@ def configure_instructor_permissions(user):
                 perms = Permission.objects.filter(content_type=content_type)
                 permissions_to_add.extend(perms)
             except LookupError:
-                # Model might not be available yet or name is incorrect
                 continue
         
         if permissions_to_add:

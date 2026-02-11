@@ -1,0 +1,53 @@
+{% extends 'superadmin_dashboard/base.html' %}
+
+{% block title %}Notifications | SuperAdmin Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">System Notifications</h1>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 bg-white">
+                <h6 class="m-0 font-weight-bold text-primary">All Alerts & Notifications</h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for notification in notifications %}
+                    <div
+                        class="list-group-item p-4 {% if not notification.is_read %}bg-light border-start border-primary border-4{% endif %}">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="d-flex align-items-start">
+                                <div
+                                    class="bg-{% if notification.notification_type == 'info' %}primary{% elif notification.notification_type == 'success' %}success{% elif notification.notification_type == 'warning' %}warning{% else %}danger{% endif %} bg-opacity-10 text-{% if notification.notification_type == 'info' %}primary{% elif notification.notification_type == 'success' %}success{% elif notification.notification_type == 'warning' %}warning{% else %}danger{% endif %} rounded-circle p-2 me-3">
+                                    <i
+                                        class="fas {% if notification.notification_type == 'info' %}fa-info-circle{% elif notification.notification_type == 'success' %}fa-check-circle{% elif notification.notification_type == 'warning' %}fa-exclamation-triangle{% else %}fa-times-circle{% endif %}"></i>
+                                </div>
+                                <div>
+                                    <h6 class="mb-1 fw-bold">{{ notification.title }}</h6>
+                                    <p class="text-muted mb-1">{{ notification.message }}</p>
+                                    <small class="text-muted">{{ notification.created_at|timesince }} ago</small>
+                                </div>
+                            </div>
+                            {% if not notification.is_read %}
+                            <a href="{% url 'superadmin_dashboard:mark_notification_read' notification.pk %}"
+                                class="btn btn-sm btn-outline-primary rounded-pill">
+                                Mark Read
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-bell-slash fa-3x text-light mb-3"></i>
+                        <p class="text-muted">No notifications found.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

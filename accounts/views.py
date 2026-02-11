@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
-from .models import Learner, Instructor
+
+from .models import Learner, Instructor, Subscription
 from .form import LearnerForm, InstructorForm, AccountProfileForm,InstructorRegistrationForm, LearnerRegistrationForm, LoginForm
 from .serializer import LearnerSerializer, InstructorSerializer
 from rest_framework import viewsets
@@ -11,6 +12,7 @@ from accounts.decorator import learner_required, instructor_required, is_admin
 
 from django.utils import timezone
 from membership.models import Invitation
+from partern.models import TenantPartner
 # Create your views here.
 
 class LearnerViewSet(viewsets.ModelViewSet):
@@ -200,7 +202,9 @@ def user_login(request):
                 authenticated_user = authenticate(request, username=user_obj.username, password=password)
                 if authenticated_user is not None:
                     login(request, authenticated_user)
-                    if authenticated_user.user_type == 'instructor':
+                    if authenticated_user.is_superuser or authenticated_user.user_type == 'admin':
+                         return redirect('superadmin_dashboard:overview')
+                    elif authenticated_user.user_type == 'instructor':
                         return redirect('instructor_dashboard')
                     else:
                         return redirect('home')
@@ -333,3 +337,263 @@ def contact_as(request):
         HttpResponse: The rendered contact page.
     """
     return render(request, 'accounts/contact.html')
+
+
+
+# EMAIL DEALING ALL TEMPLATES AND VIEWS CAN BE ADDED HERE, SUCH AS PASSWORD RESET, ETC.
+#=======================================================================================================================================
+
+
+from django.contrib.auth import get_user_model
+from django.contrib.auth.views import (
+    PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, 
+    PasswordResetCompleteView, PasswordChangeView, PasswordChangeDoneView
+)
+from django.urls import reverse_lazy
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.core.mail import send_mail, EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.conf import settings
+from django.utils.html import strip_tags
+import logging
+
+logger = logging.getLogger(__name__)
+User = get_user_model()
+
+class CustomPasswordResetView(PasswordResetView):
+
+    subject = "Password Reset Requested"
+    template_name = 'Resent_emali/password_reset_form.html'
+    email_template_name = 'Resent_emali/password_reset_email.html'
+    success_url = reverse_lazy('accounts:password_reset_done')
+
+    def form_valid(self, form):
+        
+        email = form.cleaned_data.get('email')
+
+        try:
+            user = User.objects.get(email=email)
+            token_generator = self.token_generator.make_token(user)
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+
+            reset_url = self.request.build_absolute_uri(
+                reverse_lazy('accounts:password_reset_confirm', kwargs={'uidb64': uid, 'token': token_generator})
+            )
+
+            context = {
+                'user': user,
+                'reset_url': reset_url,
+                'expiry_hours': 1,
+                'settings': settings,
+            }
+            html_message = render_to_string(self.email_template_name, context)
+            text_content = strip_tags(html_message)
+            email_message = EmailMultiAlternatives(
+                subject=self.subject,
+                body=text_content,
+                from_email=settings.EMAIL_HOST_USER,
+                to = [user.email],
+                )
+            email_message.attach_alternative(html_message, "text/html")
+            email_message.send()
+        except User.DoesNotExist:
+            pass # Do not reveal if email exists or not for security reasons
+
+        messages.success(self.request, "Password reset email has been sent if the email exists in our system.")
+        return super().form_valid(form)
+    
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    template_name = 'Resent_emali/password_reset_done.html'
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = 'Resent_emali/password_reset_confirm.html'
+    success_url = reverse_lazy('accounts:password_reset_complete')
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        user = self.request.user
+        if user.is_authenticated:
+            logger.info(f"Password reset successful for user: {user.email}")
+        messages.success(self.request, "Your password has been reset successfully.")
+        return response
+    
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = 'Resent_emali/password_reset_complete.html'
+
+
+class CustomPasswordChangeView(PasswordChangeView):
+    template_name = 'Resent_emali/password_change_form.html'
+    success_url = reverse_lazy('accounts:password_change_done')
+
+    def form_valid(self, form):
+        user = self.request.user
+        logger.info(f"Password change successful for user: {user.email}")
+        messages.success(self.request, "Your password has been changed successfully.")
+        return super().form_valid(form)
+    
+class CustomPasswordChangeDoneView(PasswordChangeDoneView):
+
+    template_name = 'Resent_emali/password_change_done.html'
+
+
+
+
+def send_welcome_email(user):
+    subject = "Welcome to Our E-Learning Platform!"
+    context = {
+        'user': user,
+        'settings': settings,
+    }
+    html_message = render_to_string('Resent_emali/welcome_email.html', context)
+    text_content = strip_tags(html_message)
+    email_message = EmailMultiAlternatives(
+        subject=subject,
+        body=text_content,
+        from_email=settings.EMAIL_HOST_USER,
+        to=[user.email],
+    )
+    email_message.attach_alternative(html_message, "text/html")
+    email_message.send()
+
+
+def send_course_enrollment_email(learner, course):
+    subject = f"Enrollment Confirmation for {course.title}"
+    context = {
+        'learner': learner,
+        'course': course,
+        'settings': settings,
+    }
+    html_message = render_to_string('Resent_emali/course_enrollment_email.html', context)
+    text_content = strip_tags(html_message)
+    email_message = EmailMultiAlternatives(
+        subject=subject,
+        body=text_content,
+        from_email=settings.EMAIL_HOST_USER,
+        to=[learner.user.email],
+    )
+    email_message.attach_alternative(html_message, "text/html")
+    email_message.send()
+
+def instructor_invitation_email(instructor, invitation):
+    subject = "You're Invited to Join as an Instructor!"
+    context = {
+        'instructor': instructor,
+        'invitation': invitation,
+        'settings': settings,
+    }
+    html_message = render_to_string('Resent_emali/instructor_invitation_email.html', context)
+    text_content = strip_tags(html_message)
+    email_message = EmailMultiAlternatives(
+        subject=subject,
+        body=text_content,
+        from_email=settings.EMAIL_HOST_USER,
+        to=[instructor.email],
+    )
+    email_message.attach_alternative(html_message, "text/html")
+    email_message.send()
+
+def instructor_welcome_email(instructor):
+    subject = "Welcome to Our E-Learning Platform as an Instructor!"
+    context = {
+        'instructor': instructor,
+        'specialization': instructor.specialization,
+        'pattern_type': instructor.get_pattern_type_display() if instructor.pattern_type else 'N/A',
+        'settings': settings,
+    }
+    html_message = render_to_string('Resent_emali/instructor_welcome_email.html', context)
+    text_content = strip_tags(html_message)
+    email_message = EmailMultiAlternatives(
+        subject=subject,
+        body=text_content,
+        from_email=settings.EMAIL_HOST_USER,
+        to=[instructor.email],
+    )
+    email_message.attach_alternative(html_message, "text/html")
+    email_message.send()
+
+
+def certificate_email(learner, course, certificate):
+    subject = f"Congratulations on Completing {course.title}!"
+    context = {
+        'learner': learner,
+        'course': course,
+        'certificate': certificate,
+        'settings': settings,
+    }
+    html_message = render_to_string('Resent_emali/certificate_email.html', context)
+    text_content = strip_tags(html_message)
+    email_message = EmailMultiAlternatives(
+        subject=subject,
+        body=text_content,
+        from_email=settings.EMAIL_HOST_USER,
+        to=[learner.user.email],
+    )
+    email_message.attach_alternative(html_message, "text/html")
+    email_message.send()
+
+def update_email_to_student(course, request=None):
+    """
+    Sends a new course notification to all registered students and active subscribers.
+    """
+    instructor = course.instructor
+    subject = f"New Course Alert: '{course.title}' is Now Live!"
+    
+    # Fetch all learners and students with active subscriptions
+    learner_emails = set(Learner.objects.all().values_list('user__email', flat=True))
+    active_subscriber_emails = set(Subscription.objects.filter(active=True).values_list('learner__user__email', flat=True))
+    
+    all_emails = list(learner_emails | active_subscriber_emails)
+    
+    if not all_emails:
+        logger.info(f"No recipients found for course notification: {course.title}")
+        return
+
+    context = {
+        'instructor': instructor,
+        'course': course,
+        'settings': settings,
+        'request': request,
+    }
+    
+    html_message = render_to_string('Resent_emali/new_course_notification_email.html', context)
+    text_content = strip_tags(html_message)
+    
+    # Send in bulk using BCC to protect privacy
+    email_message = EmailMultiAlternatives(
+        subject=subject,
+        body=text_content,
+        from_email=settings.EMAIL_HOST_USER,
+        to=[settings.EMAIL_HOST_USER],
+        bcc=all_emails,
+        headers={
+            'X-Email-Category': 'Promotion',
+            'Precedence': 'bulk',
+            'Auto-Submitted': 'auto-generated'
+        }
+    )
+    email_message.attach_alternative(html_message, "text/html")
+    
+    try:
+        email_message.send()
+        logger.info(f"Successfully sent notification for '{course.title}' to {len(all_emails)} recipients.")
+    except Exception as e:
+        logger.error(f"Error sending course notification email: {str(e)}")
+
+        context = {
+        'instructor': instructor,
+        'course': course,
+        'settings': settings,
+    }
+        
+    html_message = render_to_string('Resent_emali/new_course_notification_email.html', context)
+    text_content = strip_tags(html_message)
+    email_message = EmailMultiAlternatives(
+        subject=subject,
+        body=text_content,
+        from_email=settings.EMAIL_HOST_USER,
+        to=[instructor.email],
+    )
+    email_message.attach_alternative(html_message, "text/html")
+    email_message.send()
+    
