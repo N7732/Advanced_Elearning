@@ -1,0 +1,25 @@
+# Environment variables
+.env
+*.env
+.env.local
+.env.production
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+db.sqlite3
+
+# Django
+*.log
+local_settings.py
+media/
+staticfiles/
+static/
+
+# Security sensitive
+superadmin/management/commands/create_superadmin.py
+security.log
+backups/
